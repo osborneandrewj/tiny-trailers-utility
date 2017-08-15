@@ -10,4 +10,10 @@
     <string name="text_enter_link">Paste YouTube link</string>
     <string name="text_enter_rental">Select Rental Period:</string>
     <string name="btn_book_text">Book</string>
+    <string-array name="rental_length_array">
+        <item>1 Hour</item>
+        <item>2 Hours</item>
+        <item>3 Hours</item>
+    </string-array>
+    <string name="spinner_prompt">select length</string>
 </resources>
