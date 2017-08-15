@@ -12,16 +12,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.example.android.tinytrailersutility.models.Movie;
+import com.example.android.tinytrailersutility.rest.YouTubeApi;
+import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.utilities.MyNetworkUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
 
 public class AddMovieActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
     @BindView(R.id.youtubeLinkEditText) EditText mLinkEditText;
     @BindView(R.id.spinner_rental_period) Spinner mRentalSpinner;
     @BindView(R.id.btn_book) Button mBtnBook;
+
+    private YouTubeApi mService;
 
 
     @Override
@@ -56,6 +62,14 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
             userEntry = mLinkEditText.getText().toString();
             uri = MyNetworkUtils.buildUriFromString(userEntry);
         }
+
+        String movieId = "Ks-_Mh1QhMc";
+
+        if (mService == null) {
+            mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
+        }
+
+        //Call<Movie> callMovie = mService.getMovieStatistics(movieId, BuildConfig.)
     }
 
     @Override
