@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class YouTubeApiClient {
 
-    public static final String BASE_URL = "https://www.googleapis.com";
+    public static final String BASE_URL = "https://www.googleapis.com/youtube/v3/";
     private static Retrofit retrofit = null;
 
     public static Retrofit getClient() {

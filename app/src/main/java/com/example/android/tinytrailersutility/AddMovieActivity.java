@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,14 +13,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.example.android.tinytrailersutility.models.Item;
 import com.example.android.tinytrailersutility.models.Movie;
+import com.example.android.tinytrailersutility.models.Statistics;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.utilities.MyNetworkUtils;
 
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AddMovieActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
@@ -64,12 +71,31 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         }
 
         String movieId = "Ks-_Mh1QhMc";
+        String part = "statistics";
 
         if (mService == null) {
             mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
         }
 
-        //Call<Movie> callMovie = mService.getMovieStatistics(movieId, BuildConfig.)
+        final Call<Movie> callMovie = mService.getMovieStatistics(movieId, BuildConfig.YOUTUBE_API_KEY,
+                part);
+        callMovie.enqueue(new Callback<Movie>() {
+            @Override
+            public void onResponse(Call<Movie> call, Response<Movie> response) {
+                Movie movie = response.body();
+                Log.v("TAG", "Got something! " + callMovie.request().url() + " " +
+                movie.getKind());
+                Item item = movie.getItems().get(0);
+                Statistics statistics = item.getStatistics();
+                Log.v("TAG", "views: " + statistics.getViewCount());
+            }
+
+            @Override
+            public void onFailure(Call<Movie> call, Throwable t) {
+                Log.v("TAG", "Hmm, something went wrong " + callMovie.request().url());
+                t.printStackTrace();
+            }
+        });
     }
 
     @Override

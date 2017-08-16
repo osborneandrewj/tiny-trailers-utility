@@ -16,6 +16,9 @@ import retrofit2.http.Query;
 public interface YouTubeApi {
 
     // Get a list of movie statistics
-    @GET("youtube/v3/videos")
-    Call<List<Movie>> getMovieStatistics(@Query("id") String movieId, @Query("key") String apiKey, @Query("part") String part);
+    @GET("videos")
+    Call<Movie> getMovieStatistics(
+            @Query("id") String movieId,
+            @Query("key") String apiKey,
+            @Query("part") String part);
 }
