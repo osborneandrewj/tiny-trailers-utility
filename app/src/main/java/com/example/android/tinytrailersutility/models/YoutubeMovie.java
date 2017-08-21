@@ -4,11 +4,11 @@ import java.io.Serializable;
 import java.util.List;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Parcelable.Creator;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Movie implements Serializable, Parcelable
+public class YoutubeMovie implements Serializable, Parcelable
 {
 
     @SerializedName("kind")
@@ -23,14 +23,14 @@ public class Movie implements Serializable, Parcelable
     @SerializedName("items")
     @Expose
     private List<Item> items = null;
-    public final static Parcelable.Creator<Movie> CREATOR = new Creator<Movie>() {
+    public final static Parcelable.Creator<YoutubeMovie> CREATOR = new Creator<YoutubeMovie>() {
 
 
         @SuppressWarnings({
                 "unchecked"
         })
-        public Movie createFromParcel(Parcel in) {
-            Movie instance = new Movie();
+        public YoutubeMovie createFromParcel(Parcel in) {
+            YoutubeMovie instance = new YoutubeMovie();
             instance.kind = ((String) in.readValue((String.class.getClassLoader())));
             instance.etag = ((String) in.readValue((String.class.getClassLoader())));
             instance.pageInfo = ((PageInfo) in.readValue((PageInfo.class.getClassLoader())));
@@ -38,8 +38,8 @@ public class Movie implements Serializable, Parcelable
             return instance;
         }
 
-        public Movie[] newArray(int size) {
-            return (new Movie[size]);
+        public YoutubeMovie[] newArray(int size) {
+            return (new YoutubeMovie[size]);
         }
 
     }

@@ -1,8 +1,6 @@
 package com.example.android.tinytrailersutility.rest;
 
-import com.example.android.tinytrailersutility.models.Movie;
-
-import java.util.List;
+import com.example.android.tinytrailersutility.models.YoutubeMovie;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -17,7 +15,7 @@ public interface YouTubeApi {
 
     // Get a list of movie statistics
     @GET("videos")
-    Call<Movie> getMovieStatistics(
+    Call<YoutubeMovie> getMovieStatistics(
             @Query("id") String movieId,
             @Query("key") String apiKey,
             @Query("part") String part);

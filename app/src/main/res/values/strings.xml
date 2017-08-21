@@ -9,7 +9,7 @@
     <!--AddMovieActivity-->
     <string name="text_enter_link">Paste YouTube link</string>
     <string name="text_enter_rental">Select Rental Period:</string>
-    <string name="btn_book_text">Book</string>
+    <string name="btn_book_text">Select Video</string>
     <string-array name="rental_length_array">
         <item>1 Hour</item>
         <item>2 Hours</item>

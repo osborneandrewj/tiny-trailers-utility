@@ -12,15 +12,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
+import com.example.android.tinytrailersutility.database.TinyMovie;
 import com.example.android.tinytrailersutility.models.Item;
-import com.example.android.tinytrailersutility.models.Movie;
+import com.example.android.tinytrailersutility.models.YoutubeMovie;
 import com.example.android.tinytrailersutility.models.Statistics;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
-import com.example.android.tinytrailersutility.utilities.MyNetworkUtils;
-
-import java.util.List;
+import com.example.android.tinytrailersutility.utilities.MyLinkUtils;
+import com.orm.SugarContext;
+import com.orm.SugarRecord;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,9 +34,14 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
 
     @BindView(R.id.youtubeLinkEditText) EditText mLinkEditText;
     @BindView(R.id.spinner_rental_period) Spinner mRentalSpinner;
-    @BindView(R.id.btn_book) Button mBtnBook;
+    @BindView(R.id.btn_select_video) Button mBtnSelectVideo;
 
+    private static final String TAG = AddMovieActivity.class.getSimpleName();
     private YouTubeApi mService;
+    private String mId;
+    private Uri mUri;
+    private String mUriString;
+    private SugarRecord mSugarRecord;
 
 
     @Override
@@ -42,6 +49,8 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_movie);
         ButterKnife.bind(this);
+
+        SugarContext.init(this);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -54,45 +63,63 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         mRentalSpinner.setAdapter(adapter);
         mRentalSpinner.setPrompt(getString(R.string.spinner_prompt));
 
-        mBtnBook.setOnClickListener(new View.OnClickListener() {
+        mBtnSelectVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                buildUrlFromUserEntry();
                 addNewMovie();
             }
         });
     }
 
-    private void addNewMovie() {
-        String userEntry;
-        Uri uri = null;
-        if (mLinkEditText != null && !TextUtils.isEmpty(mLinkEditText.getText())) {
-            userEntry = mLinkEditText.getText().toString();
-            uri = MyNetworkUtils.buildUriFromString(userEntry);
-        }
+    private void buildUrlFromUserEntry() {
+        if (!TextUtils.isEmpty(mLinkEditText.getText().toString())) {
+            String inputString = mLinkEditText.getText().toString();
 
-        String movieId = "Ks-_Mh1QhMc";
+            mUri = MyLinkUtils.buildUriFromString(inputString);
+            mId = MyLinkUtils.getYoutubeIdFromLink(inputString);
+        }
+        mLinkEditText.setText("");
+    }
+
+    private void addNewMovie() {
         String part = "statistics";
+
+        if (mId == null) {
+            return;
+        }
 
         if (mService == null) {
             mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
         }
 
-        final Call<Movie> callMovie = mService.getMovieStatistics(movieId, BuildConfig.YOUTUBE_API_KEY,
+        final Call<YoutubeMovie> callMovie = mService.getMovieStatistics(mId, BuildConfig.YOUTUBE_API_KEY,
                 part);
-        callMovie.enqueue(new Callback<Movie>() {
+        callMovie.enqueue(new Callback<YoutubeMovie>() {
             @Override
-            public void onResponse(Call<Movie> call, Response<Movie> response) {
-                Movie movie = response.body();
-                Log.v("TAG", "Got something! " + callMovie.request().url() + " " +
-                movie.getKind());
-                Item item = movie.getItems().get(0);
+            public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
+                YoutubeMovie youtubeMovie = response.body();
+                Log.v(TAG, "Got something! " + callMovie.request().url() + " " +
+                youtubeMovie.getKind());
+                Item item = youtubeMovie.getItems().get(0);
                 Statistics statistics = item.getStatistics();
+                String viewCount = statistics.getViewCount();
                 Log.v("TAG", "views: " + statistics.getViewCount());
+                Toast.makeText(AddMovieActivity.this, viewCount, Toast.LENGTH_SHORT).show();
+
+                TinyMovie newMovie = new TinyMovie(mUri.toString(),
+                        "3",
+                        "9",
+                        statistics.getViewCount(),
+                        statistics.getViewCount());
+                SugarRecord.save(newMovie);
+
+
             }
 
             @Override
-            public void onFailure(Call<Movie> call, Throwable t) {
-                Log.v("TAG", "Hmm, something went wrong " + callMovie.request().url());
+            public void onFailure(Call<YoutubeMovie> call, Throwable t) {
+                Log.v(TAG, "Hmm, something went wrong " + callMovie.request().url());
                 t.printStackTrace();
             }
         });
@@ -106,5 +133,11 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SugarContext.terminate();
     }
 }
