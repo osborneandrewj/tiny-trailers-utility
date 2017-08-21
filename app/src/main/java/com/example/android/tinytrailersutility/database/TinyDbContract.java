@@ -38,6 +38,7 @@ public class TinyDbContract {
         /** Names of each column in the table. Note: _ID is assumed already by BaseColumns */
         public static final String COLUMN_MOVIE_URI = "movie_uri";
         public static final String COLUMN_MOVIE_YOUTUBE_ID = "youtube_id";
+        public static final String COLUMN_MOVIE_NAME = "movie_name";
         public static final String COLUMN_RENTAL_LENGTH = "rental_length";
         public static final String COLUMN_START_TIME = "start_time";
         public static final String COLUMN_STARTING_VIEWS = "starting_views";
@@ -49,6 +50,7 @@ public class TinyDbContract {
                 TinyDbEntry._ID + " INTEGER PRIMARY KEY," +
                 TinyDbEntry.COLUMN_MOVIE_URI + " TEXT NOT NULL," +
                 TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID + " TEXT NOT NULL," +
+                TinyDbEntry.COLUMN_MOVIE_NAME + " TEXT NOT NULL," +
                 TinyDbEntry.COLUMN_RENTAL_LENGTH + " TEXT NOT NULL," +
                 TinyDbEntry.COLUMN_START_TIME + " TEXT NOT NULL," +
                 TinyDbEntry.COLUMN_STARTING_VIEWS + " TEXT NOT NULL," +

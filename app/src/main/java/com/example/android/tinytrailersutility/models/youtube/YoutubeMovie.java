@@ -1,4 +1,4 @@
-package com.example.android.tinytrailersutility.models;
+package com.example.android.tinytrailersutility.models.youtube;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,7 +34,7 @@ public class YoutubeMovie implements Serializable, Parcelable
             instance.kind = ((String) in.readValue((String.class.getClassLoader())));
             instance.etag = ((String) in.readValue((String.class.getClassLoader())));
             instance.pageInfo = ((PageInfo) in.readValue((PageInfo.class.getClassLoader())));
-            in.readList(instance.items, (com.example.android.tinytrailersutility.models.Item.class.getClassLoader()));
+            in.readList(instance.items, (Item.class.getClassLoader()));
             return instance;
         }
 

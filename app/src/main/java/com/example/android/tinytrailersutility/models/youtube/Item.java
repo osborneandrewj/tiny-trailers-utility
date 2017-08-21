@@ -1,9 +1,9 @@
-package com.example.android.tinytrailersutility.models;
+package com.example.android.tinytrailersutility.models.youtube;
 
 import java.io.Serializable;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.Parcelable.Creator;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -19,6 +19,9 @@ public class Item implements Serializable, Parcelable
     @SerializedName("id")
     @Expose
     private String id;
+    @SerializedName("snippet")
+    @Expose
+    private Snippet snippet;
     @SerializedName("statistics")
     @Expose
     private Statistics statistics;
@@ -33,6 +36,7 @@ public class Item implements Serializable, Parcelable
             instance.kind = ((String) in.readValue((String.class.getClassLoader())));
             instance.etag = ((String) in.readValue((String.class.getClassLoader())));
             instance.id = ((String) in.readValue((String.class.getClassLoader())));
+            instance.snippet = ((Snippet) in.readValue((Snippet.class.getClassLoader())));
             instance.statistics = ((Statistics) in.readValue((Statistics.class.getClassLoader())));
             return instance;
         }
@@ -43,7 +47,7 @@ public class Item implements Serializable, Parcelable
 
     }
             ;
-    private final static long serialVersionUID = 3459213755161985747L;
+    private final static long serialVersionUID = -6490471107324334973L;
 
     public String getKind() {
         return kind;
@@ -69,6 +73,14 @@ public class Item implements Serializable, Parcelable
         this.id = id;
     }
 
+    public Snippet getSnippet() {
+        return snippet;
+    }
+
+    public void setSnippet(Snippet snippet) {
+        this.snippet = snippet;
+    }
+
     public Statistics getStatistics() {
         return statistics;
     }
@@ -81,6 +93,7 @@ public class Item implements Serializable, Parcelable
         dest.writeValue(kind);
         dest.writeValue(etag);
         dest.writeValue(id);
+        dest.writeValue(snippet);
         dest.writeValue(statistics);
     }
 

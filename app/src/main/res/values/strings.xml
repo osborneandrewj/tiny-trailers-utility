@@ -16,4 +16,13 @@
         <item>3 Hours</item>
     </string-array>
     <string name="spinner_prompt">select length</string>
+
+    <!--Tiny Movie item-->
+    <string name="label_youtube_id">Title:</string>
+    <string name="label_rental_length">Rental period:</string>
+    <string name="label_start_time">Start time:</string>
+    <string name="label_time_elapsed">Time elapsed:</string>
+    <string name="label_minutes">mins</string>
+    <string name="label_starting_views">Starting views:</string>
+    <string name="label_current_views">Current views:</string>
 </resources>

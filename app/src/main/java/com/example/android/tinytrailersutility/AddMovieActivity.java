@@ -1,5 +1,6 @@
 package com.example.android.tinytrailersutility;
 
+import android.content.ContentValues;
 import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -14,15 +15,14 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.android.tinytrailersutility.database.TinyMovie;
-import com.example.android.tinytrailersutility.models.Item;
-import com.example.android.tinytrailersutility.models.YoutubeMovie;
-import com.example.android.tinytrailersutility.models.Statistics;
+import com.example.android.tinytrailersutility.database.TinyDbContract;
+import com.example.android.tinytrailersutility.models.youtube.Item;
+import com.example.android.tinytrailersutility.models.youtube.Snippet;
+import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
+import com.example.android.tinytrailersutility.models.youtube.Statistics;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.utilities.MyLinkUtils;
-import com.orm.SugarContext;
-import com.orm.SugarRecord;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,19 +38,18 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
 
     private static final String TAG = AddMovieActivity.class.getSimpleName();
     private YouTubeApi mService;
-    private String mId;
-    private Uri mUri;
-    private String mUriString;
-    private SugarRecord mSugarRecord;
-
+    private YoutubeMovie mYoutubeMovie;
+    private Item mYoutubeItem;
+    private String mYoutubeId;
+    private Uri mYoutubeUri;
+    private Statistics mMovieStats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_movie);
-        ButterKnife.bind(this);
 
-        SugarContext.init(this);
+        ButterKnife.bind(this);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -67,7 +66,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
             @Override
             public void onClick(View view) {
                 buildUrlFromUserEntry();
-                addNewMovie();
+                selectVideo();
             }
         });
     }
@@ -76,16 +75,16 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         if (!TextUtils.isEmpty(mLinkEditText.getText().toString())) {
             String inputString = mLinkEditText.getText().toString();
 
-            mUri = MyLinkUtils.buildUriFromString(inputString);
-            mId = MyLinkUtils.getYoutubeIdFromLink(inputString);
+            mYoutubeUri = MyLinkUtils.buildUriFromString(inputString);
+            mYoutubeId = MyLinkUtils.getYoutubeIdFromLink(inputString);
         }
         mLinkEditText.setText("");
     }
 
-    private void addNewMovie() {
-        String part = "statistics";
+    private void selectVideo() {
+        String part = "statistics,snippet";
 
-        if (mId == null) {
+        if (mYoutubeId == null) {
             return;
         }
 
@@ -93,28 +92,19 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
             mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
         }
 
-        final Call<YoutubeMovie> callMovie = mService.getMovieStatistics(mId, BuildConfig.YOUTUBE_API_KEY,
+        final Call<YoutubeMovie> callMovie = mService.getMovieStatistics(mYoutubeId, BuildConfig.YOUTUBE_API_KEY,
                 part);
         callMovie.enqueue(new Callback<YoutubeMovie>() {
             @Override
             public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
-                YoutubeMovie youtubeMovie = response.body();
-                Log.v(TAG, "Got something! " + callMovie.request().url() + " " +
-                youtubeMovie.getKind());
-                Item item = youtubeMovie.getItems().get(0);
-                Statistics statistics = item.getStatistics();
-                String viewCount = statistics.getViewCount();
-                Log.v("TAG", "views: " + statistics.getViewCount());
+                mYoutubeMovie = response.body();
+                Log.v(TAG, "Got something! " + callMovie.request().url());
+                mYoutubeItem = mYoutubeMovie.getItems().get(0);
+                mMovieStats = mYoutubeItem.getStatistics();
+                String viewCount = mMovieStats.getViewCount();
                 Toast.makeText(AddMovieActivity.this, viewCount, Toast.LENGTH_SHORT).show();
-
-                TinyMovie newMovie = new TinyMovie(mUri.toString(),
-                        "3",
-                        "9",
-                        statistics.getViewCount(),
-                        statistics.getViewCount());
-                SugarRecord.save(newMovie);
-
-
+                addMovieToDatabase();
+                finish();
             }
 
             @Override
@@ -138,6 +128,23 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     @Override
     protected void onStop() {
         super.onStop();
-        SugarContext.terminate();
+    }
+
+    private void addMovieToDatabase() {
+        Snippet movieSnippet = mYoutubeItem.getSnippet();
+        String movieTitle = movieSnippet.getTitle();
+        ContentValues values = new ContentValues();
+        values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_URI, mYoutubeUri.toString());
+        values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID, mYoutubeId);
+        values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_NAME, movieTitle);
+        values.put(TinyDbContract.TinyDbEntry.COLUMN_RENTAL_LENGTH, 0);
+        values.put(TinyDbContract.TinyDbEntry.COLUMN_START_TIME, String.valueOf(System.currentTimeMillis()));
+        values.put(TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS, mMovieStats.getViewCount());
+        values.put(TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS, mMovieStats.getViewCount());
+
+        Uri newUri = getContentResolver().insert(
+                TinyDbContract.TinyDbEntry.CONTENT_URI,
+                values);
+        Log.v(TAG, "New movie rented! " + newUri);
     }
 }

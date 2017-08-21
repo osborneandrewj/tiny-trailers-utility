@@ -24,6 +24,10 @@
         </activity>
         <activity android:name=".AddMovieActivity"
             android:parentActivityName=".MainActivity"></activity>
+        <provider
+            android:authorities="com.example.android.tinytrailersutility"
+            android:name=".database.TinyProvider"
+            android:exported="false" />
     </application>
 
 </manifest>

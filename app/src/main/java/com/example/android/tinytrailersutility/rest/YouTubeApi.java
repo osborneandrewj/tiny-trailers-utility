@@ -1,6 +1,6 @@
 package com.example.android.tinytrailersutility.rest;
 
-import com.example.android.tinytrailersutility.models.YoutubeMovie;
+import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
