@@ -127,7 +127,6 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     }
 
     private void addMovieToDatabase() {
-
         mYoutubeItem = mYoutubeMovie.getItems().get(0);
         mMovieStats = mYoutubeItem.getStatistics();
         Snippet movieSnippet = mYoutubeItem.getSnippet();
