@@ -13,7 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.example.android.tinytrailersutility.database.TinyDbContract;
 import com.example.android.tinytrailersutility.models.youtube.Item;
@@ -82,27 +81,24 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     }
 
     private void selectVideo() {
-        String part = "statistics,snippet";
 
-        if (mYoutubeId == null) {
-            return;
-        }
+        if (mYoutubeId == null) return;
 
         if (mService == null) {
             mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
         }
 
-        final Call<YoutubeMovie> callMovie = mService.getMovieStatistics(mYoutubeId, BuildConfig.YOUTUBE_API_KEY,
-                part);
+        final Call<YoutubeMovie> callMovie = mService.getMovieStatistics(
+                mYoutubeId,
+                BuildConfig.YOUTUBE_API_KEY,
+                "statistics,snippet");
         callMovie.enqueue(new Callback<YoutubeMovie>() {
             @Override
             public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
                 mYoutubeMovie = response.body();
+
                 Log.v(TAG, "Got something! " + callMovie.request().url());
-                mYoutubeItem = mYoutubeMovie.getItems().get(0);
-                mMovieStats = mYoutubeItem.getStatistics();
-                String viewCount = mMovieStats.getViewCount();
-                Toast.makeText(AddMovieActivity.this, viewCount, Toast.LENGTH_SHORT).show();
+
                 addMovieToDatabase();
                 finish();
             }
@@ -131,8 +127,12 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     }
 
     private void addMovieToDatabase() {
+
+        mYoutubeItem = mYoutubeMovie.getItems().get(0);
+        mMovieStats = mYoutubeItem.getStatistics();
         Snippet movieSnippet = mYoutubeItem.getSnippet();
         String movieTitle = movieSnippet.getTitle();
+
         ContentValues values = new ContentValues();
         values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_URI, mYoutubeUri.toString());
         values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID, mYoutubeId);
