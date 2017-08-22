@@ -11,7 +11,7 @@ import retrofit2.http.Query;
  *
  */
 
-public interface YouTubeApi {
+public interface IYouTube {
 
     // Get a list of movie statistics
     @GET("videos")

@@ -115,7 +115,10 @@ public class TinyProvider extends ContentProvider {
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection, @Nullable String[] selectionArgs) {
+    public int update(@NonNull Uri uri,
+                      @Nullable ContentValues contentValues,
+                      @Nullable String selection,
+                      @Nullable String[] selectionArgs) {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case TINY_DB:
@@ -154,7 +157,10 @@ public class TinyProvider extends ContentProvider {
         return numberOfRowsDeleted;
     }
 
-    private int updateTinyMovie(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
+    private int updateTinyMovie(Uri uri,
+                                ContentValues contentValues,
+                                String selection,
+                                String[] selectionArgs) {
         SQLiteDatabase database = mTinyDbHelper.getWritableDatabase();
 
         int rowsAffected = database.update(TinyDbContract.TinyDbEntry.TABLE_NAME,

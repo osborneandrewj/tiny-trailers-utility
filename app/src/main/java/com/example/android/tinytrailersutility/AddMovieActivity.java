@@ -19,7 +19,7 @@ import com.example.android.tinytrailersutility.models.youtube.Item;
 import com.example.android.tinytrailersutility.models.youtube.Snippet;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 import com.example.android.tinytrailersutility.models.youtube.Statistics;
-import com.example.android.tinytrailersutility.rest.YouTubeApi;
+import com.example.android.tinytrailersutility.rest.IYouTube;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.utilities.MyLinkUtils;
 
@@ -36,7 +36,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     @BindView(R.id.btn_select_video) Button mBtnSelectVideo;
 
     private static final String TAG = AddMovieActivity.class.getSimpleName();
-    private YouTubeApi mService;
+    private IYouTube mService;
     private YoutubeMovie mYoutubeMovie;
     private Item mYoutubeItem;
     private String mYoutubeId;
@@ -85,7 +85,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         if (mYoutubeId == null) return;
 
         if (mService == null) {
-            mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
+            mService = YouTubeApiClient.getClient().create(IYouTube.class);
         }
 
         final Call<YoutubeMovie> callMovie = mService.getMovieStatistics(
@@ -127,6 +127,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     }
 
     private void addMovieToDatabase() {
+
         mYoutubeItem = mYoutubeMovie.getItems().get(0);
         mMovieStats = mYoutubeItem.getStatistics();
         Snippet movieSnippet = mYoutubeItem.getSnippet();

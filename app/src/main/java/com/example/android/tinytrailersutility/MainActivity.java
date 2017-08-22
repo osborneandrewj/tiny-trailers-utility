@@ -1,8 +1,10 @@
 package com.example.android.tinytrailersutility;
 
 import android.app.PendingIntent;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
@@ -10,6 +12,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -22,7 +25,13 @@ import android.view.MenuItem;
 
 
 import com.example.android.tinytrailersutility.adapters.TinyMovieLightAdapter;
+import com.example.android.tinytrailersutility.bus.BusProvider;
 import com.example.android.tinytrailersutility.database.TinyDbContract;
+import com.example.android.tinytrailersutility.utilities.MyUpdateManager;
+import com.example.android.tinytrailersutility.utilities.MyUpdateUtils;
+import com.squareup.otto.Bus;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,7 +46,9 @@ public class MainActivity extends AppCompatActivity
 
     private static final int UNIQUE_ID_FOR_LOADER = 1986;
     private TinyMovieLightAdapter mMovieLightAdapter;
-    //private RecyclerView mTinyMovieRecyclerView;
+    private MyUpdateManager mMyUpdateManager;
+    private Bus mBus = BusProvider.getInstance();
+    private ArrayList<Uri> mUrisDisplayed;
 
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.rv_tiny_movies) RecyclerView mTinyMovieRecyclerView;
@@ -51,6 +62,11 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+        mMyUpdateManager = new MyUpdateManager(this, mBus);
+        mBus.register(mMyUpdateManager);
+
+        mUrisDisplayed = new ArrayList<>();
 
         setSupportActionBar(toolbar);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -76,6 +92,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void refreshData() {
+        for (int i = 0; i < mUrisDisplayed.size(); i++) {
+            MyUpdateUtils.updateMovie(this, mUrisDisplayed.get(i));
+        }
     }
 
     public void openAddMovieActivity() {
@@ -110,6 +129,9 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+        if (id == R.id.action_refresh_data) {
+            refreshData();
         }
 
         return super.onOptionsItemSelected(item);
@@ -164,6 +186,10 @@ public class MainActivity extends AppCompatActivity
         data.moveToFirst();
         for (int i = 0; i < data.getCount(); i++) {
             data.moveToPosition(i);
+            int id = data.getInt(data.getColumnIndexOrThrow(
+                    TinyDbContract.TinyDbEntry._ID));
+            Uri uri = ContentUris.withAppendedId(data.getNotificationUri(), id);
+            mUrisDisplayed.add(uri);
         }
         mMovieLightAdapter.setTinyMovieData(data);
     }
