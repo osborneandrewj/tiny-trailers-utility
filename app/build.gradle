@@ -41,7 +41,7 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.squareup.okhttp3:okhttp:3.8.1'
 
-    // Used for database
-    compile 'com.github.satyan:sugar:1.5'
+    // Used to update the database
+    compile 'com.firebase:firebase-jobdispatcher:0.8.0'
 
 }

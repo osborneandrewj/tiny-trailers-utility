@@ -28,6 +28,12 @@
             android:authorities="com.example.android.tinytrailersutility"
             android:name=".database.TinyProvider"
             android:exported="false" />
+        <service android:name=".services.UpdateMoviesFirebaseJobService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
