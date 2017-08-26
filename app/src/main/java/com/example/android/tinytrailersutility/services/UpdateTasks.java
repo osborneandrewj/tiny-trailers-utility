@@ -1,6 +1,7 @@
 package com.example.android.tinytrailersutility.services;
 
 import android.content.Context;
+import android.util.Log;
 
 /**
  * Created by Zark on 8/21/2017.
@@ -9,6 +10,7 @@ import android.content.Context;
 
 public class UpdateTasks {
 
+    public static final String TAG = UpdateTasks.class.getSimpleName();
     public static final String ACTION_UPDATE_VIEW_COUNT = "update-view-count";
 
     public static void executeTask(Context context, String action) {
@@ -22,6 +24,6 @@ public class UpdateTasks {
     }
 
     private static void updateViewCount(Context context) {
-
+        Log.v(TAG, "updaing View Count!");
     }
 }

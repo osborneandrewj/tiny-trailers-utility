@@ -14,14 +14,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.example.android.tinytrailersutility.bus.BusProvider;
 import com.example.android.tinytrailersutility.database.TinyDbContract;
 import com.example.android.tinytrailersutility.models.youtube.Item;
 import com.example.android.tinytrailersutility.models.youtube.Snippet;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 import com.example.android.tinytrailersutility.models.youtube.Statistics;
-import com.example.android.tinytrailersutility.rest.IYouTube;
+import com.example.android.tinytrailersutility.rest.MovieService;
+import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.utilities.MyLinkUtils;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,12 +40,17 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     @BindView(R.id.btn_select_video) Button mBtnSelectVideo;
 
     private static final String TAG = AddMovieActivity.class.getSimpleName();
-    private IYouTube mService;
+    private YouTubeApi mService;
     private YoutubeMovie mYoutubeMovie;
     private Item mYoutubeItem;
     private String mYoutubeId;
     private Uri mYoutubeUri;
     private Statistics mMovieStats;
+
+    private Bus mBus = BusProvider.getInstance(); // Did this use my custom BusProvider class?
+    //private Bus mBus;
+    // Don't think it did
+    private MovieService mMovieService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +77,12 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
                 selectVideo();
             }
         });
+
+        if (mMovieService == null) {
+            mMovieService = new MovieService(buildApi(), mBus);
+        }
+        mBus.register(mMovieService);
+        mBus.register(this);
     }
 
     private void buildUrlFromUserEntry() {
@@ -84,31 +99,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
 
         if (mYoutubeId == null) return;
 
-        if (mService == null) {
-            mService = YouTubeApiClient.getClient().create(IYouTube.class);
-        }
-
-        final Call<YoutubeMovie> callMovie = mService.getMovieStatistics(
-                mYoutubeId,
-                BuildConfig.YOUTUBE_API_KEY,
-                "statistics,snippet");
-        callMovie.enqueue(new Callback<YoutubeMovie>() {
-            @Override
-            public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
-                mYoutubeMovie = response.body();
-
-                Log.v(TAG, "Got something! " + callMovie.request().url());
-
-                addMovieToDatabase();
-                finish();
-            }
-
-            @Override
-            public void onFailure(Call<YoutubeMovie> call, Throwable t) {
-                Log.v(TAG, "Hmm, something went wrong " + callMovie.request().url());
-                t.printStackTrace();
-            }
-        });
+        mMovieService.getMovieStatisticsAndSnippet(mYoutubeId);
     }
 
     @Override
@@ -146,5 +137,25 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
                 TinyDbContract.TinyDbEntry.CONTENT_URI,
                 values);
         Log.v(TAG, "New movie rented! " + newUri);
+    }
+
+    private YouTubeApi buildApi() {
+        if (mService == null) {
+            mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
+            return mService;
+        } else return mService;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mBus.unregister(this);
+    }
+
+    @Subscribe
+    public void newMovie(YoutubeMovie newMovie) {
+        Log.v(TAG, "Got a movie! " + newMovie.getKind());
+
+        finish();
     }
 }

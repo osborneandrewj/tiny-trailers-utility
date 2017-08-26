@@ -2,6 +2,7 @@ package com.example.android.tinytrailersutility.services;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.firebase.jobdispatcher.JobParameters;
 import com.firebase.jobdispatcher.JobService;
@@ -18,25 +19,17 @@ public class UpdateMoviesFirebaseJobService extends JobService {
     @Override
     public boolean onStartJob(final JobParameters job) {
 
-        mBackgroundTask = new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] objects) {
-                Context context = UpdateMoviesFirebaseJobService.this;
-                UpdateTasks.executeTask(context, UpdateTasks.ACTION_UPDATE_VIEW_COUNT);
-                return null;
-            }
+        Log.v("TAG", "Starting a job...");
 
-            @Override
-            protected void onPostExecute(Object o) {
-                jobFinished(job, false);
-            }
-        };
+        // asynctask was here
+
         return false; // Answers the question: "Is there still work going on?"
     }
 
     @Override
     public boolean onStopJob(JobParameters job) {
         if (mBackgroundTask != null) mBackgroundTask.cancel(true);
-        return true; // Should this job be retired?
+        Log.d("TAG", "I think the job is done now");
+        return false; // Should this job be retired?
     }
 }

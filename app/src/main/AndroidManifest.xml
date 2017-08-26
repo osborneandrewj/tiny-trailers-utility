@@ -22,18 +22,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddMovieActivity"
-            android:parentActivityName=".MainActivity"></activity>
+        <activity
+            android:name=".AddMovieActivity"
+            android:parentActivityName=".MainActivity" />
+
         <provider
-            android:authorities="com.example.android.tinytrailersutility"
             android:name=".database.TinyProvider"
+            android:authorities="com.example.android.tinytrailersutility"
             android:exported="false" />
-        <service android:name=".services.UpdateMoviesFirebaseJobService"
+
+        <service
+            android:name=".services.UpdateMoviesFirebaseJobService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.firebase.jobdispatcher.ACTION_EXECUTE" />
             </intent-filter>
         </service>
+
+        <activity android:name=".BetterAddMovieActivity"></activity>
     </application>
 
 </manifest>

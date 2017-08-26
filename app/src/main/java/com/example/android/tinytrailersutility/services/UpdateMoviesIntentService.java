@@ -19,5 +19,6 @@ public class UpdateMoviesIntentService extends IntentService {
     protected void onHandleIntent(@Nullable Intent intent) {
         String action = intent.getAction();
         //TODO: execute
+        UpdateTasks.executeTask(this, action);
     }
 }

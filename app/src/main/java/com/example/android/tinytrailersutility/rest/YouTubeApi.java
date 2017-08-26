@@ -11,11 +11,11 @@ import retrofit2.http.Query;
  *
  */
 
-public interface IYouTube {
-
+public interface YouTubeApi {
+    
     // Get a list of movie statistics
     @GET("videos")
-    Call<YoutubeMovie> getMovieStatistics(
+    Call<YoutubeMovie> getMovieDetails(
             @Query("id") String movieId,
             @Query("key") String apiKey,
             @Query("part") String part);

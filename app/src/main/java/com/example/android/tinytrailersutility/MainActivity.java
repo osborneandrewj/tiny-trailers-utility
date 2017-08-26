@@ -27,6 +27,8 @@ import android.view.MenuItem;
 import com.example.android.tinytrailersutility.adapters.TinyMovieLightAdapter;
 import com.example.android.tinytrailersutility.bus.BusProvider;
 import com.example.android.tinytrailersutility.database.TinyDbContract;
+import com.example.android.tinytrailersutility.rest.MovieService;
+import com.example.android.tinytrailersutility.services.UpdateUtils;
 import com.example.android.tinytrailersutility.utilities.MyUpdateManager;
 import com.example.android.tinytrailersutility.utilities.MyUpdateUtils;
 import com.squareup.otto.Bus;
@@ -44,11 +46,15 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         LoaderManager.LoaderCallbacks<Cursor> {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int UNIQUE_ID_FOR_LOADER = 1986;
     private TinyMovieLightAdapter mMovieLightAdapter;
     private MyUpdateManager mMyUpdateManager;
-    private Bus mBus = BusProvider.getInstance();
     private ArrayList<Uri> mUrisDisplayed;
+    private ArrayList<String> mYoutubeIds;
+
+    private Bus mBus = BusProvider.getInstance(); // Did this use my custom BusProvider class?
+    // Don't think it did
 
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.rv_tiny_movies) RecyclerView mTinyMovieRecyclerView;
@@ -67,6 +73,7 @@ public class MainActivity extends AppCompatActivity
         mBus.register(mMyUpdateManager);
 
         mUrisDisplayed = new ArrayList<>();
+        mYoutubeIds = new ArrayList<>();
 
         setSupportActionBar(toolbar);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -89,12 +96,19 @@ public class MainActivity extends AppCompatActivity
         mTinyMovieRecyclerView.setAdapter(mMovieLightAdapter);
 
         getSupportLoaderManager().initLoader(UNIQUE_ID_FOR_LOADER, null, this);
+
+        mBus.register(this);
     }
 
     public void refreshData() {
         for (int i = 0; i < mUrisDisplayed.size(); i++) {
-            MyUpdateUtils.updateMovie(this, mUrisDisplayed.get(i));
+            //MyUpdateUtils.updateMovie(this, mYoutubeIds.get(i), mUrisDisplayed.get(i));
         }
+        Log.v(TAG, "Scheduling a task...");
+        UpdateUtils.scheduleMovieUpdates(this);
+
+        Intent updateIntent = new Intent();
+
     }
 
     public void openAddMovieActivity() {
@@ -188,6 +202,9 @@ public class MainActivity extends AppCompatActivity
             data.moveToPosition(i);
             int id = data.getInt(data.getColumnIndexOrThrow(
                     TinyDbContract.TinyDbEntry._ID));
+            String youtubeId = data.getString(data.getColumnIndexOrThrow(
+                    TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID));
+            mYoutubeIds.add(youtubeId);
             Uri uri = ContentUris.withAppendedId(data.getNotificationUri(), id);
             mUrisDisplayed.add(uri);
         }

@@ -2,6 +2,7 @@ package com.example.android.tinytrailersutility.services;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
@@ -21,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UpdateUtils {
 
-    private static final int UPDATE_INTERVAL_MINUTES = 15;
+    private static final int UPDATE_INTERVAL_MINUTES = 1;
     private static final int UPDATE_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(UPDATE_INTERVAL_MINUTES));
     private static final int SYNC_FLEXTIME_SECONDS = UPDATE_INTERVAL_SECONDS;
 
@@ -30,7 +31,10 @@ public class UpdateUtils {
     private static boolean sInitialized;
 
     synchronized public static void scheduleMovieUpdates(@NonNull final Context context) {
-        if (sInitialized) return;
+        if (sInitialized) {
+            Log.v("UpdateUtils", "Already initialized...");
+            return;
+        }
 
         Driver driver = new GooglePlayDriver(context);
         FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(driver);
@@ -55,11 +59,18 @@ public class UpdateUtils {
                 // constraints that need to be satisfied for the job to run
                 .setConstraints(
                         // only run on an unmetered network
-                        Constraint.ON_UNMETERED_NETWORK
+                        Constraint.ON_ANY_NETWORK
                 )
                 .build();
 
-        dispatcher.schedule(updateMovieJob);
+        Log.v("UpdateUtils", "Getting this running...");
+
+        Job simpleJob = dispatcher.newJobBuilder()
+                .setService(UpdateMoviesFirebaseJobService.class)
+                .setTag("Weirdness")
+                .build();
+
+        dispatcher.mustSchedule(simpleJob);
         sInitialized = true;
     }
 }
