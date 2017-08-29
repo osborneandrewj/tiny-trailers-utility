@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.android.tinytrailersutility.database.TinyDbContract;
@@ -52,17 +53,22 @@ public class DatabaseService {
         mBus = bus;
     }
 
-    public void addTinyMovieToDatabase(YoutubeMovie aYoutubeMovie) {
+    public void addTinyMovieToDatabase(YoutubeMovie aYoutubeMovie, @Nullable String rentalLength) {
 
         Item item = aYoutubeMovie.getItems().get(0);
         Statistics statistics = item.getStatistics();
         Snippet snippet = item.getSnippet();
 
+
         ContentValues values = new ContentValues();
         values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_URI, "0");
         values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID, item.getId());
         values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_NAME, snippet.getTitle());
-        values.put(TinyDbContract.TinyDbEntry.COLUMN_RENTAL_LENGTH, 0);
+        if (rentalLength == null) {
+            values.put(TinyDbContract.TinyDbEntry.COLUMN_RENTAL_LENGTH, 0);
+        } else {
+            values.put(TinyDbContract.TinyDbEntry.COLUMN_RENTAL_LENGTH, rentalLength);
+        }
         values.put(TinyDbContract.TinyDbEntry.COLUMN_START_TIME, String.valueOf(System.currentTimeMillis()));
         values.put(TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS, statistics.getViewCount());
         values.put(TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS, statistics.getViewCount());

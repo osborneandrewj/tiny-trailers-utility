@@ -36,9 +36,8 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     private static final String TAG = AddMovieActivity.class.getSimpleName();
     private static final int UPDATE_SUCCESSFUL = 100;
     private static final int UPDATE_FAILED = -1;
+    private String mRentalLength;
     private YouTubeApi mService;
-    private String mYoutubeId;
-    private Uri mYoutubeUri;
 
     private Bus mBus = BusProvider.getInstance();
     private MovieService mMovieService;
@@ -61,12 +60,12 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mRentalSpinner.setAdapter(adapter);
         mRentalSpinner.setPrompt(getString(R.string.spinner_prompt));
+        mRentalSpinner.setOnItemSelectedListener(this);
 
         mBtnSelectVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                buildUrlFromUserEntry();
-                selectVideo();
+                onSelectVideoButtonClicked();
             }
         });
 
@@ -78,41 +77,45 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
             mDatabaseService = new DatabaseService(this, mBus);
         }
 
-        //mBus.register(mMovieService); // is this needed?
-        //mBus.register(mDatabaseService); // is this needed?
         mBus.register(this);
     }
 
-    private void buildUrlFromUserEntry() {
+    private void onSelectVideoButtonClicked() {
+
         if (!TextUtils.isEmpty(mLinkEditText.getText().toString())) {
             String inputString = mLinkEditText.getText().toString();
+            String youTubeId = MyLinkUtils.getYoutubeIdFromLink(inputString);
 
-            mYoutubeUri = MyLinkUtils.buildUriFromString(inputString);
-            mYoutubeId = MyLinkUtils.getYoutubeIdFromLink(inputString);
+            if (youTubeId == null) return;
+            mMovieService.getMovieStatisticsAndSnippet(youTubeId);
         }
-        // Reset the EditText
+        // Clear the EditText
         mLinkEditText.setText("");
-    }
-
-    private void selectVideo() {
-
-        if (mYoutubeId == null) return;
-        mMovieService.getMovieStatisticsAndSnippet(mYoutubeId);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-        adapterView.getItemAtPosition(position);
+        switch (position) {
+            case 0:
+                mRentalLength = "1";
+                break;
+            case 1:
+                mRentalLength = "2";
+                break;
+            case 2:
+                mRentalLength = "3";
+                break;
+            default:
+                mRentalLength = "1";
+
+        }
+
+        Log.v(TAG, "Spinner: " + position + " " + mRentalLength);
     }
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 
     private YouTubeApi buildApi() {
@@ -132,7 +135,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     public void onMovieReceived(OnMovieReceivedEvent event) {
         YoutubeMovie newMovie = event.mNewMovie;
         Log.v(TAG, "Got an actual thing here: " + newMovie.getEtag());
-        mDatabaseService.addTinyMovieToDatabase(newMovie);
+        mDatabaseService.addTinyMovieToDatabase(newMovie, mRentalLength);
         finish();
     }
 
