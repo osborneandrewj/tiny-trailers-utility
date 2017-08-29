@@ -1,6 +1,5 @@
 package com.example.android.tinytrailersutility;
 
-import android.content.ContentValues;
 import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,23 +14,17 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.example.android.tinytrailersutility.bus.BusProvider;
-import com.example.android.tinytrailersutility.database.TinyDbContract;
-import com.example.android.tinytrailersutility.models.youtube.Item;
-import com.example.android.tinytrailersutility.models.youtube.Snippet;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
-import com.example.android.tinytrailersutility.models.youtube.Statistics;
 import com.example.android.tinytrailersutility.rest.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
+import com.example.android.tinytrailersutility.services.DatabaseService;
 import com.example.android.tinytrailersutility.utilities.MyLinkUtils;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class AddMovieActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
 
@@ -40,17 +33,15 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     @BindView(R.id.btn_select_video) Button mBtnSelectVideo;
 
     private static final String TAG = AddMovieActivity.class.getSimpleName();
+    private static final int UPDATE_SUCCESSFUL = 100;
+    private static final int UPDATE_FAILED = -1;
     private YouTubeApi mService;
-    private YoutubeMovie mYoutubeMovie;
-    private Item mYoutubeItem;
     private String mYoutubeId;
     private Uri mYoutubeUri;
-    private Statistics mMovieStats;
 
-    private Bus mBus = BusProvider.getInstance(); // Did this use my custom BusProvider class?
-    //private Bus mBus;
-    // Don't think it did
+    private Bus mBus = BusProvider.getInstance();
     private MovieService mMovieService;
+    private DatabaseService mDatabaseService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +72,13 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         if (mMovieService == null) {
             mMovieService = new MovieService(buildApi(), mBus);
         }
-        mBus.register(mMovieService);
+
+        if (mDatabaseService == null) {
+            mDatabaseService = new DatabaseService(this, mBus);
+        }
+
+        mBus.register(mMovieService); // is this needed?
+        mBus.register(mDatabaseService); // is this needed?
         mBus.register(this);
     }
 
@@ -92,13 +89,13 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
             mYoutubeUri = MyLinkUtils.buildUriFromString(inputString);
             mYoutubeId = MyLinkUtils.getYoutubeIdFromLink(inputString);
         }
+        // Reset the EditText
         mLinkEditText.setText("");
     }
 
     private void selectVideo() {
 
         if (mYoutubeId == null) return;
-
         mMovieService.getMovieStatisticsAndSnippet(mYoutubeId);
     }
 
@@ -117,28 +114,6 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         super.onStop();
     }
 
-    private void addMovieToDatabase() {
-
-        mYoutubeItem = mYoutubeMovie.getItems().get(0);
-        mMovieStats = mYoutubeItem.getStatistics();
-        Snippet movieSnippet = mYoutubeItem.getSnippet();
-        String movieTitle = movieSnippet.getTitle();
-
-        ContentValues values = new ContentValues();
-        values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_URI, mYoutubeUri.toString());
-        values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID, mYoutubeId);
-        values.put(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_NAME, movieTitle);
-        values.put(TinyDbContract.TinyDbEntry.COLUMN_RENTAL_LENGTH, 0);
-        values.put(TinyDbContract.TinyDbEntry.COLUMN_START_TIME, String.valueOf(System.currentTimeMillis()));
-        values.put(TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS, mMovieStats.getViewCount());
-        values.put(TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS, mMovieStats.getViewCount());
-
-        Uri newUri = getContentResolver().insert(
-                TinyDbContract.TinyDbEntry.CONTENT_URI,
-                values);
-        Log.v(TAG, "New movie rented! " + newUri);
-    }
-
     private YouTubeApi buildApi() {
         if (mService == null) {
             mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
@@ -155,7 +130,18 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     @Subscribe
     public void newMovie(YoutubeMovie newMovie) {
         Log.v(TAG, "Got a movie! " + newMovie.getKind());
-
+        // Do I need to separate the YouTube request from the database update?
+        mDatabaseService.addTinyMovieToDatabase(newMovie);
         finish();
+    }
+
+    @Subscribe
+    public void updateStatus(int updateStatus) {
+        if (updateStatus == UPDATE_FAILED) {
+            Log.v(TAG, "Update failed");
+        }
+        if (updateStatus == UPDATE_SUCCESSFUL) {
+            Log.v(TAG, "Update successful");
+        }
     }
 }

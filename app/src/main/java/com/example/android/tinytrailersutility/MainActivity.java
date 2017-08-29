@@ -1,6 +1,5 @@
 package com.example.android.tinytrailersutility;
 
-import android.app.PendingIntent;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
@@ -27,10 +26,8 @@ import android.view.MenuItem;
 import com.example.android.tinytrailersutility.adapters.TinyMovieLightAdapter;
 import com.example.android.tinytrailersutility.bus.BusProvider;
 import com.example.android.tinytrailersutility.database.TinyDbContract;
-import com.example.android.tinytrailersutility.rest.MovieService;
 import com.example.android.tinytrailersutility.services.UpdateUtils;
 import com.example.android.tinytrailersutility.utilities.MyUpdateManager;
-import com.example.android.tinytrailersutility.utilities.MyUpdateUtils;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
@@ -102,7 +99,7 @@ public class MainActivity extends AppCompatActivity
 
     public void refreshData() {
         for (int i = 0; i < mUrisDisplayed.size(); i++) {
-            //MyUpdateUtils.updateMovie(this, mYoutubeIds.get(i), mUrisDisplayed.get(i));
+            //MyLocalDatabaseUtils.updateMovie(this, mYoutubeIds.get(i), mUrisDisplayed.get(i));
         }
         Log.v(TAG, "Scheduling a task...");
         UpdateUtils.scheduleMovieUpdates(this);
