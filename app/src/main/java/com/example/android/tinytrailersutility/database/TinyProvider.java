@@ -122,7 +122,8 @@ public class TinyProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case TINY_DB:
-                return 0;
+                selection = TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID + "=?";
+                return updateTinyMovie(uri, contentValues, selection, selectionArgs);
             case TINY_DB_ITEM:
                 selection = TinyDbContract.TinyDbEntry._ID + "=?";
                 selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};

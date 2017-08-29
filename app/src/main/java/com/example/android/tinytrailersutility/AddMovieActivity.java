@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.example.android.tinytrailersutility.bus.BusProvider;
+import com.example.android.tinytrailersutility.bus.OnMovieReceivedEvent;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 import com.example.android.tinytrailersutility.rest.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
@@ -77,8 +78,8 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
             mDatabaseService = new DatabaseService(this, mBus);
         }
 
-        mBus.register(mMovieService); // is this needed?
-        mBus.register(mDatabaseService); // is this needed?
+        //mBus.register(mMovieService); // is this needed?
+        //mBus.register(mDatabaseService); // is this needed?
         mBus.register(this);
     }
 
@@ -128,9 +129,9 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     }
 
     @Subscribe
-    public void newMovie(YoutubeMovie newMovie) {
-        Log.v(TAG, "Got a movie! " + newMovie.getKind());
-        // Do I need to separate the YouTube request from the database update?
+    public void onMovieReceived(OnMovieReceivedEvent event) {
+        YoutubeMovie newMovie = event.mNewMovie;
+        Log.v(TAG, "Got an actual thing here: " + newMovie.getEtag());
         mDatabaseService.addTinyMovieToDatabase(newMovie);
         finish();
     }

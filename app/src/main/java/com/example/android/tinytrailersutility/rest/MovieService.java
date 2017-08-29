@@ -1,6 +1,10 @@
 package com.example.android.tinytrailersutility.rest;
 
+import android.util.Log;
+
 import com.example.android.tinytrailersutility.BuildConfig;
+import com.example.android.tinytrailersutility.bus.OnMovieReceivedEvent;
+import com.example.android.tinytrailersutility.bus.OnMovieStatsReceivedEvent;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 import com.squareup.otto.Bus;
 
@@ -35,7 +39,8 @@ public class MovieService {
         getStatistics.enqueue(new Callback<YoutubeMovie>() {
             @Override
             public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
-                // post here
+                Log.v("TAG", "Movie stats received");
+                mBus.post(new OnMovieStatsReceivedEvent(response.body()));
             }
 
             @Override
@@ -52,7 +57,8 @@ public class MovieService {
             @Override
             public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
                 YoutubeMovie youtubeMovie = response.body();
-                mBus.post(youtubeMovie);
+                Log.v("TAG", "Response: " + call.request().url());
+                mBus.post(new OnMovieReceivedEvent(youtubeMovie));
             }
 
             @Override

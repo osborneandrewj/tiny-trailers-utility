@@ -25,10 +25,15 @@ import android.view.MenuItem;
 
 import com.example.android.tinytrailersutility.adapters.TinyMovieLightAdapter;
 import com.example.android.tinytrailersutility.bus.BusProvider;
+import com.example.android.tinytrailersutility.bus.OnMovieStatsReceivedEvent;
 import com.example.android.tinytrailersutility.database.TinyDbContract;
-import com.example.android.tinytrailersutility.services.UpdateUtils;
+import com.example.android.tinytrailersutility.rest.MovieService;
+import com.example.android.tinytrailersutility.rest.YouTubeApi;
+import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
+import com.example.android.tinytrailersutility.services.DatabaseService;
 import com.example.android.tinytrailersutility.utilities.MyUpdateManager;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 
@@ -47,9 +52,10 @@ public class MainActivity extends AppCompatActivity
     private static final int UNIQUE_ID_FOR_LOADER = 1986;
     private TinyMovieLightAdapter mMovieLightAdapter;
     private MyUpdateManager mMyUpdateManager;
-    private ArrayList<Uri> mUrisDisplayed;
-    private ArrayList<String> mYoutubeIds;
 
+    private YouTubeApi mService;
+    private DatabaseService mDatabaseService;
+    private MovieService mMovieService;
     private Bus mBus = BusProvider.getInstance(); // Did this use my custom BusProvider class?
     // Don't think it did
 
@@ -68,9 +74,6 @@ public class MainActivity extends AppCompatActivity
 
         mMyUpdateManager = new MyUpdateManager(this, mBus);
         mBus.register(mMyUpdateManager);
-
-        mUrisDisplayed = new ArrayList<>();
-        mYoutubeIds = new ArrayList<>();
 
         setSupportActionBar(toolbar);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -94,17 +97,18 @@ public class MainActivity extends AppCompatActivity
 
         getSupportLoaderManager().initLoader(UNIQUE_ID_FOR_LOADER, null, this);
 
+        if (mMovieService == null) mMovieService = new MovieService(buildApi(), mBus);
+        if (mDatabaseService == null) mDatabaseService = new DatabaseService(this, mBus);
         mBus.register(this);
     }
 
     public void refreshData() {
-        for (int i = 0; i < mUrisDisplayed.size(); i++) {
-            //MyLocalDatabaseUtils.updateMovie(this, mYoutubeIds.get(i), mUrisDisplayed.get(i));
+        ArrayList<String> idList = mDatabaseService.getYouTubeIdListFromDatabase();
+        Log.v(TAG, "Size of list: " + idList.size());
+        for (String id : idList) {
+            mMovieService.getMovieStatistics(id);
         }
-        Log.v(TAG, "Scheduling a task...");
-        UpdateUtils.scheduleMovieUpdates(this);
 
-        Intent updateIntent = new Intent();
 
     }
 
@@ -194,22 +198,23 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        data.moveToFirst();
-        for (int i = 0; i < data.getCount(); i++) {
-            data.moveToPosition(i);
-            int id = data.getInt(data.getColumnIndexOrThrow(
-                    TinyDbContract.TinyDbEntry._ID));
-            String youtubeId = data.getString(data.getColumnIndexOrThrow(
-                    TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID));
-            mYoutubeIds.add(youtubeId);
-            Uri uri = ContentUris.withAppendedId(data.getNotificationUri(), id);
-            mUrisDisplayed.add(uri);
-        }
         mMovieLightAdapter.setTinyMovieData(data);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    private YouTubeApi buildApi() {
+        if (mService == null) {
+            mService = YouTubeApiClient.getClient().create(YouTubeApi.class);
+            return mService;
+        } else return mService;
+    }
+
+    @Subscribe
+    public void onNewMovieStatsReceived(OnMovieStatsReceivedEvent event) {
+        mDatabaseService.updateTinyMovieViews(event.mNewMovie);
     }
 }
