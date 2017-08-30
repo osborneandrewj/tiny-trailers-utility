@@ -55,6 +55,8 @@ public class TinyMovieLightAdapter extends RecyclerView.Adapter<TinyMovieLightAd
                 mCursor.getColumnIndexOrThrow(TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS)));
         holder.mCurrentViewsTextView.setText(mCursor.getString(
                 mCursor.getColumnIndexOrThrow(TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS)));
+        holder.mTicketsSoldTextView.setText(mCursor.getString(
+                mCursor.getColumnIndexOrThrow(TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD)));
     }
 
     @Override
@@ -74,6 +76,7 @@ public class TinyMovieLightAdapter extends RecyclerView.Adapter<TinyMovieLightAd
         @BindView(R.id.tv_minutes_elapsed) TextView mMinutesElapsedTextView;
         @BindView(R.id.tv_starting_views) TextView mStartingViewsTextView;
         @BindView(R.id.tv_current_views) TextView mCurrentViewsTextView;
+        @BindView(R.id.tv_tickets_sold) TextView mTicketsSoldTextView;
 
         public TinyMovieLightAdapterViewHolder(View view) {
             super(view);

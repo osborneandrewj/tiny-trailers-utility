@@ -23,6 +23,8 @@
     <string name="label_start_time">Start time:</string>
     <string name="label_time_elapsed">Time elapsed:</string>
     <string name="label_minutes">mins</string>
+    <string name="label_hours">hours</string>
     <string name="label_starting_views">Starting views:</string>
     <string name="label_current_views">Current views:</string>
+    <string name="label_views_claimed">Tickets sold:</string>
 </resources>

@@ -1,9 +1,7 @@
 package com.example.android.tinytrailersutility;
 
-import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
@@ -31,7 +29,6 @@ import com.example.android.tinytrailersutility.rest.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.services.DatabaseService;
-import com.example.android.tinytrailersutility.utilities.MyUpdateManager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -51,13 +48,10 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int UNIQUE_ID_FOR_LOADER = 1986;
     private TinyMovieLightAdapter mMovieLightAdapter;
-    private MyUpdateManager mMyUpdateManager;
-
     private YouTubeApi mService;
     private DatabaseService mDatabaseService;
     private MovieService mMovieService;
-    private Bus mBus = BusProvider.getInstance(); // Did this use my custom BusProvider class?
-    // Don't think it did
+    private Bus mBus = BusProvider.getInstance();
 
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.rv_tiny_movies) RecyclerView mTinyMovieRecyclerView;
@@ -71,9 +65,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
-
-        mMyUpdateManager = new MyUpdateManager(this, mBus);
-        mBus.register(mMyUpdateManager);
 
         setSupportActionBar(toolbar);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -108,8 +99,6 @@ public class MainActivity extends AppCompatActivity
         for (String id : idList) {
             mMovieService.getMovieStatistics(id);
         }
-
-
     }
 
     public void openAddMovieActivity() {
@@ -187,7 +176,8 @@ public class MainActivity extends AppCompatActivity
                 TinyDbContract.TinyDbEntry.COLUMN_RENTAL_LENGTH,
                 TinyDbContract.TinyDbEntry.COLUMN_START_TIME,
                 TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS,
-                TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS};
+                TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS,
+                TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD};
         return new CursorLoader(this,
                 TinyDbContract.TinyDbEntry.CONTENT_URI,
                 projection,
@@ -216,5 +206,6 @@ public class MainActivity extends AppCompatActivity
     @Subscribe
     public void onNewMovieStatsReceived(OnMovieStatsReceivedEvent event) {
         mDatabaseService.updateTinyMovieViews(event.mNewMovie);
+        mDatabaseService.updateTicketsSold(event.mNewMovie);
     }
 }

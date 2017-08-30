@@ -14,7 +14,7 @@ import com.example.android.tinytrailersutility.models.youtube.Item;
 import com.example.android.tinytrailersutility.models.youtube.Snippet;
 import com.example.android.tinytrailersutility.models.youtube.Statistics;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
-import com.example.android.tinytrailersutility.rest.YouTubeApi;
+import com.example.android.tinytrailersutility.utilities.MyTicketUtilities;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
@@ -46,7 +46,8 @@ public class DatabaseService {
             TinyDbContract.TinyDbEntry.COLUMN_RENTAL_LENGTH,
             TinyDbContract.TinyDbEntry.COLUMN_START_TIME,
             TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS,
-            TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS};
+            TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS,
+            TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD};
 
     public DatabaseService(Context context, Bus bus) {
         mContext = context;
@@ -72,6 +73,7 @@ public class DatabaseService {
         values.put(TinyDbContract.TinyDbEntry.COLUMN_START_TIME, String.valueOf(System.currentTimeMillis()));
         values.put(TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS, statistics.getViewCount());
         values.put(TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS, statistics.getViewCount());
+        values.put(TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD, "0");
 
         Uri newUri = mContext.getContentResolver().insert(
                 TinyDbContract.TinyDbEntry.CONTENT_URI,
@@ -131,8 +133,61 @@ public class DatabaseService {
             }
         }
 
-        if (cursor != null) cursor.close();
+        cursor.close();
 
         return youTubeIdList;
+    }
+
+    public void updateTicketsSold(YoutubeMovie updatedMovieStats) {
+
+        // Get item ID
+        Item item = updatedMovieStats.getItems().get(0);
+        String[] selectionArgs = new String[] {item.getId()};
+
+        TinyDbHelper helper = new TinyDbHelper(mContext);
+        SQLiteDatabase database = helper.getWritableDatabase();
+        Cursor cursor = database.query(
+                TinyDbContract.TinyDbEntry.TABLE_NAME,
+                mFullProjection,
+                TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID + "=?",
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        while (cursor.moveToNext()) {
+            String currentViews = null;
+            String startingViews = null;
+            String ticketsSold = null;
+            if (cursor.getString(cursor.getColumnIndexOrThrow(
+                    TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS)) != null) {
+                currentViews = cursor.getString(cursor.getColumnIndexOrThrow(
+                        TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS));
+            }
+            if (cursor.getString(cursor.getColumnIndexOrThrow(
+                    TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS)) != null) {
+                startingViews = cursor.getString(cursor.getColumnIndexOrThrow(
+                        TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS));
+            }
+            if (currentViews != null && startingViews != null) {
+                ticketsSold = String.valueOf(MyTicketUtilities.getNumberOfTicketsSold(
+                        startingViews, currentViews));
+            }
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD, ticketsSold);
+
+            int updateInt = mContext.getContentResolver().update(
+                    TinyDbContract.TinyDbEntry.CONTENT_URI,
+                    contentValues,
+                    null,
+                    selectionArgs
+            );
+
+            Log.v(TAG, "Updated: " + updateInt);
+        }
+
+        cursor.close();
     }
 }
