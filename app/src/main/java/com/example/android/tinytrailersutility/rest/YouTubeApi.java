@@ -2,6 +2,8 @@ package com.example.android.tinytrailersutility.rest;
 
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 
+import java.util.ArrayList;
+
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -17,6 +19,12 @@ public interface YouTubeApi {
     @GET("videos")
     Call<YoutubeMovie> getMovieDetails(
             @Query("id") String movieId,
+            @Query("key") String apiKey,
+            @Query("part") String part);
+
+    @GET("videos")
+    Call<YoutubeMovie> getMultipleMovieDetails(
+            @Query("id[]") ArrayList<String> movieIdList,
             @Query("key") String apiKey,
             @Query("part") String part);
 }

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  *
  */
 
-public class UpdateUtils {
+public class FirebaseJobUtils {
 
     private static final int UPDATE_INTERVAL_MINUTES = 1;
     private static final int UPDATE_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(UPDATE_INTERVAL_MINUTES));
@@ -30,9 +30,36 @@ public class UpdateUtils {
 
     private static boolean sInitialized;
 
+    public static void scheduleMovieUpdate(@NonNull final Context context) {
+
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+
+        Job updateMovieJob = dispatcher.newJobBuilder()
+                .setService(UpdateMoviesFirebaseJobService.class)
+                .setTag(UPDATE_JOB_TAG)
+                .setRecurring(true)
+                .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+                .setTrigger(Trigger.executionWindow(
+                        UPDATE_INTERVAL_SECONDS,
+                        UPDATE_INTERVAL_SECONDS + SYNC_FLEXTIME_SECONDS))
+                .setReplaceCurrent(false)
+                .setConstraints(Constraint.ON_ANY_NETWORK)
+                .build();
+
+        dispatcher.mustSchedule(updateMovieJob);
+
+        Log.v("TAG", "Job scheduled!");
+    }
+
+    public static void cancelAllJobs(final Context context) {
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+        dispatcher.cancelAll();
+        Log.v("TAG", "All jobs canceled");
+    }
+
     synchronized public static void scheduleMovieUpdates(@NonNull final Context context) {
         if (sInitialized) {
-            Log.v("UpdateUtils", "Already initialized...");
+            Log.v("FirebaseJobUtils", "Already initialized...");
             return;
         }
 
@@ -63,7 +90,7 @@ public class UpdateUtils {
                 )
                 .build();
 
-        Log.v("UpdateUtils", "Getting this running...");
+        Log.v("FirebaseJobUtils", "Getting this running...");
 
         Job simpleJob = dispatcher.newJobBuilder()
                 .setService(UpdateMoviesFirebaseJobService.class)
@@ -71,6 +98,6 @@ public class UpdateUtils {
                 .build();
 
         dispatcher.mustSchedule(simpleJob);
-        sInitialized = true;
+        //sInitialized = true;
     }
 }

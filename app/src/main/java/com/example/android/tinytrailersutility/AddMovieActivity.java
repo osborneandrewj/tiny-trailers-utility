@@ -1,5 +1,6 @@
 package com.example.android.tinytrailersutility;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,8 @@ import com.example.android.tinytrailersutility.rest.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.services.DatabaseService;
+import com.example.android.tinytrailersutility.services.FirebaseJobUtils;
+import com.example.android.tinytrailersutility.services.UpdateMoviesIntentService;
 import com.example.android.tinytrailersutility.utilities.MyLinkUtils;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -88,6 +91,8 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
 
             if (youTubeId == null) return;
             mMovieService.getMovieStatisticsAndSnippet(youTubeId);
+
+            FirebaseJobUtils.scheduleMovieUpdate(this);
         }
         // Clear the EditText
         mLinkEditText.setText("");

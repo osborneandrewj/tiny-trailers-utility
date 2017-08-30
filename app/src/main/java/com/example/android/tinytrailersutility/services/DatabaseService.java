@@ -49,7 +49,7 @@ public class DatabaseService {
             TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS,
             TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD};
 
-    public DatabaseService(Context context, Bus bus) {
+    public DatabaseService(Context context, @Nullable Bus bus) {
         mContext = context;
         mBus = bus;
     }
@@ -81,6 +81,7 @@ public class DatabaseService {
         Log.v(TAG, "New movie rented! " + newUri);
 
         // Post to bus
+        if (mBus == null) return;
         if (newUri == null) {
             mBus.post(UPDATE_FAILED);
         } else {
@@ -107,6 +108,7 @@ public class DatabaseService {
         Log.v(TAG, "updating view count to: " + currentViews);
 
         // Post to bus
+        // Really?
     }
 
     public ArrayList<String> getYouTubeIdListFromDatabase() {
@@ -123,7 +125,6 @@ public class DatabaseService {
         );
 
         ArrayList<String> youTubeIdList = new ArrayList<>();
-        //cursor.moveToFirst();
         while (cursor.moveToNext()) {
             if (cursor.getString(cursor.getColumnIndexOrThrow(
                     TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID

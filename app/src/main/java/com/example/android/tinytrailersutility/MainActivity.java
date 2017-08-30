@@ -29,6 +29,7 @@ import com.example.android.tinytrailersutility.rest.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.services.DatabaseService;
+import com.example.android.tinytrailersutility.services.FirebaseJobUtils;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -90,6 +91,11 @@ public class MainActivity extends AppCompatActivity
 
         if (mMovieService == null) mMovieService = new MovieService(buildApi(), mBus);
         if (mDatabaseService == null) mDatabaseService = new DatabaseService(this, mBus);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         mBus.register(this);
     }
 
@@ -149,6 +155,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
+            FirebaseJobUtils.cancelAllJobs(this);
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -207,5 +214,11 @@ public class MainActivity extends AppCompatActivity
     public void onNewMovieStatsReceived(OnMovieStatsReceivedEvent event) {
         mDatabaseService.updateTinyMovieViews(event.mNewMovie);
         mDatabaseService.updateTicketsSold(event.mNewMovie);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mBus.unregister(this);
     }
 }

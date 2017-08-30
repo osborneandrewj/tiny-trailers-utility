@@ -16,9 +16,12 @@ public class UpdateMoviesIntentService extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(@Nullable Intent intent) {
+    protected void onHandleIntent(Intent intent) {
         String action = intent.getAction();
         //TODO: execute
-        UpdateTasks.executeTask(this, action);
+        UpdateTasks.executeTask(this, action); // Do I need this? Don't think so...
+
+
+        DatabaseService databaseService = new DatabaseService(this, null);
     }
 }

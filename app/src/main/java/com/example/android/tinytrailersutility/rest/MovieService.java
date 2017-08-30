@@ -1,5 +1,7 @@
 package com.example.android.tinytrailersutility.rest;
 
+import android.content.Context;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.android.tinytrailersutility.BuildConfig;
@@ -7,6 +9,8 @@ import com.example.android.tinytrailersutility.bus.OnMovieReceivedEvent;
 import com.example.android.tinytrailersutility.bus.OnMovieStatsReceivedEvent;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 import com.squareup.otto.Bus;
+
+import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,7 +31,7 @@ public class MovieService {
     private Bus mBus;
     private String mYoutubeId;
 
-    public MovieService(YouTubeApi aApi, Bus aBus) {
+    public MovieService(@Nullable YouTubeApi aApi, @Nullable Bus aBus) {
         mYouTubeApi = aApi;
         mBus = aBus;
     }
@@ -64,6 +68,26 @@ public class MovieService {
             @Override
             public void onFailure(Call<YoutubeMovie> call, Throwable error) {
                 mBus.post(error);
+            }
+        });
+    }
+
+    public void updateMoviesSilently(Context context, ArrayList<String> idList) {
+
+        if (idList == null) return;
+
+        final Call<YoutubeMovie> updateMoviesSilently = mYouTubeApi
+                .getMultipleMovieDetails(idList, mKey, mStatistics);
+        updateMoviesSilently.enqueue(new Callback<YoutubeMovie>() {
+            @Override
+            public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
+                YoutubeMovie youtubeMovie = response.body();
+                Log.v("TAG", "Response: " + call.request().url());
+            }
+
+            @Override
+            public void onFailure(Call<YoutubeMovie> call, Throwable t) {
+
             }
         });
     }
