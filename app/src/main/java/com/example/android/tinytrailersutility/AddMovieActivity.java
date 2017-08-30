@@ -1,7 +1,5 @@
 package com.example.android.tinytrailersutility;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,12 +15,11 @@ import android.widget.Spinner;
 import com.example.android.tinytrailersutility.bus.BusProvider;
 import com.example.android.tinytrailersutility.bus.OnMovieReceivedEvent;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
-import com.example.android.tinytrailersutility.rest.MovieService;
+import com.example.android.tinytrailersutility.services.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.services.DatabaseService;
-import com.example.android.tinytrailersutility.services.FirebaseJobUtils;
-import com.example.android.tinytrailersutility.services.UpdateMoviesIntentService;
+import com.example.android.tinytrailersutility.utilities.FirebaseJobUtils;
 import com.example.android.tinytrailersutility.utilities.MyLinkUtils;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -40,6 +37,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     private static final int UPDATE_SUCCESSFUL = 100;
     private static final int UPDATE_FAILED = -1;
     private String mRentalLength;
+    private String mYouTubeId;
     private YouTubeApi mService;
 
     private Bus mBus = BusProvider.getInstance();
@@ -88,10 +86,10 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         if (!TextUtils.isEmpty(mLinkEditText.getText().toString())) {
 
             String inputString = mLinkEditText.getText().toString();
-            String youTubeId = MyLinkUtils.getYoutubeIdFromLink(inputString);
+            mYouTubeId = MyLinkUtils.getYoutubeIdFromLink(inputString);
 
-            if (youTubeId == null) return;
-            mMovieService.getMovieStatisticsAndSnippet(youTubeId);
+            if (mYouTubeId == null) return;
+            mMovieService.getMovieStatisticsAndSnippet(mYouTubeId);
         }
         // Clear the EditText
         mLinkEditText.setText("");
@@ -101,16 +99,16 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         switch (position) {
             case 0:
-                mRentalLength = "1";
+                mRentalLength = "10";
                 break;
             case 1:
-                mRentalLength = "2";
+                mRentalLength = "20";
                 break;
             case 2:
-                mRentalLength = "3";
+                mRentalLength = "30";
                 break;
             default:
-                mRentalLength = "1";
+                mRentalLength = "10";
 
         }
 
@@ -133,6 +131,13 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     protected void onPause() {
         super.onPause();
         mBus.unregister(this);
+    }
+
+    private void scheduleRentalJobs() {
+        FirebaseJobUtils.scheduleSpecificMovieUpdate(
+                this,
+                mYouTubeId,
+                Integer.parseInt(mRentalLength));
     }
 
     @Subscribe

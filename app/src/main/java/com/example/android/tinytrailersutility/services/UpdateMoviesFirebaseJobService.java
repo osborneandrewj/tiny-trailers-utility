@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
-import com.example.android.tinytrailersutility.rest.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.firebase.jobdispatcher.JobParameters;
@@ -33,32 +32,31 @@ public final class UpdateMoviesFirebaseJobService extends JobService {
 
         Log.v("TAG", "Starting a job...");
 
-        mBackgroundTask = new AsyncTask() {
+        mBackgroundTask = new AsyncTask () {
 
             @Override
             protected Object doInBackground(Object[] objects) {
-                Context context = UpdateMoviesFirebaseJobService.this;
-                final DatabaseService databaseService = new DatabaseService(context, null);
-                mIdList = databaseService.getYouTubeIdListFromDatabase(null);
-                String idString = android.text.TextUtils.join(",", mIdList);
-                Log.v("TAG", "String: " + idString);
 
+                Context context = UpdateMoviesFirebaseJobService.this;
+
+                final DatabaseService databaseService = new DatabaseService(context, null);
+                mIdList = databaseService.getYouTubeIdsFromLocalMovies(null);
+                String idString = android.text.TextUtils.join(",", mIdList);
 
                 mYouTubeApi = YouTubeApiClient.getClient().create(YouTubeApi.class);
 
                 if (mIdList == null) return null;
 
-                final Call<YoutubeMovie> updateMoviesSilently = mYouTubeApi
+                final Call<YoutubeMovie> updateAllMovies = mYouTubeApi
                         .getMultipleMovieDetails(
                                 idString,
                                 MovieService.mKey,
                                 MovieService.mStatistics);
-                updateMoviesSilently.enqueue(new Callback<YoutubeMovie>() {
+                updateAllMovies.enqueue(new Callback<YoutubeMovie>() {
                     @Override
                     public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
-                        YoutubeMovie youtubeMovie = response.body();
                         Log.v("TAG", "Response: " + call.request().url());
-                        databaseService.updateTicketsSold(response.body());
+                        databaseService.updateLocalMoviesWithNewData(response.body());
                     }
 
                     @Override
@@ -66,7 +64,6 @@ public final class UpdateMoviesFirebaseJobService extends JobService {
 
                     }
                 });
-
 
                 return null;
             }
@@ -76,7 +73,7 @@ public final class UpdateMoviesFirebaseJobService extends JobService {
                 super.onPostExecute(o);
                 //Context context = UpdateMoviesFirebaseJobService.this;
                 //MovieService movieService = new MovieService(null, null);
-                //movieService.updateMoviesSilently(context, mIdList);
+                //movieService.updateAllMovies(context, mIdList);
                 jobFinished(job, false);
             }
         };

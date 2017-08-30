@@ -26,11 +26,11 @@ import com.example.android.tinytrailersutility.bus.BusProvider;
 import com.example.android.tinytrailersutility.bus.OnMovieStatsReceivedEvent;
 import com.example.android.tinytrailersutility.database.TinyDbContract;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
-import com.example.android.tinytrailersutility.rest.MovieService;
+import com.example.android.tinytrailersutility.services.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.services.DatabaseService;
-import com.example.android.tinytrailersutility.services.FirebaseJobUtils;
+import com.example.android.tinytrailersutility.utilities.FirebaseJobUtils;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void refreshData() {
-        ArrayList<String> idList = mDatabaseService.getYouTubeIdListFromDatabase(this);
+        ArrayList<String> idList = mDatabaseService.getYouTubeIdsFromLocalMovies(this);
         Log.v(TAG, "Size of list: " + idList.size());
         for (String id : idList) {
             mMovieService.getMovieStatistics(id);
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void testRefreshData() {
-        ArrayList<String> idList = mDatabaseService.getYouTubeIdListFromDatabase(this);
+        ArrayList<String> idList = mDatabaseService.getYouTubeIdsFromLocalMovies(this);
         String idString = android.text.TextUtils.join(",", idList);
 
         final Call<YoutubeMovie> updateMoviesSilently = buildApi()
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
                 Log.v("TAG", "Response: " + call.request().url());
-                mDatabaseService.updateTicketsSold(response.body());
+                mDatabaseService.updateLocalMoviesWithNewData(response.body());
             }
 
             @Override
@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity
     @Subscribe
     public void onNewMovieStatsReceived(OnMovieStatsReceivedEvent event) {
         mDatabaseService.updateTinyMovieViews(event.mNewMovie);
-        mDatabaseService.updateTicketsSold(event.mNewMovie);
+        mDatabaseService.updateLocalMoviesWithNewData(event.mNewMovie);
     }
 
     @Override

@@ -1,9 +1,12 @@
-package com.example.android.tinytrailersutility.services;
+package com.example.android.tinytrailersutility.utilities;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.android.tinytrailersutility.services.UpdateMoviesFirebaseJobService;
 import com.firebase.jobdispatcher.Constraint;
 import com.firebase.jobdispatcher.Driver;
 import com.firebase.jobdispatcher.FirebaseJobDispatcher;
@@ -24,10 +27,10 @@ public class FirebaseJobUtils {
 
     private static final int UPDATE_INTERVAL_MINUTES = 1;
     private static final int UPDATE_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(UPDATE_INTERVAL_MINUTES));
-    private static final int SYNC_FLEXTIME_SECONDS = UPDATE_INTERVAL_SECONDS;
+    private static final int SYNC_FLEXTIME_SECONDS = 30;
 
     private static final String UPDATE_JOB_TAG = "update_movies_tag";
-
+    private static final String YOUTUBE_ID = "youtube_id";
     private static boolean sInitialized;
 
     public static void scheduleMovieUpdate(@NonNull final Context context) {
@@ -49,6 +52,49 @@ public class FirebaseJobUtils {
         dispatcher.mustSchedule(updateMovieJob);
 
         Log.v("TAG", "Job scheduled!");
+    }
+
+    /**
+     * Schedule a job to grab movie information from YouTube at the end of the rental period
+     * specified by the user.
+     *
+     * @param context context.
+     * @param aYouTubeId This is used as the tag for the job and used by the job to fetch the
+     *                   data from YouTube.
+     * @param rentalPeriodInMinutes This is defined by the user when renting the movie.
+     */
+    public static void scheduleSpecificMovieUpdate(
+            final Context context,
+            String aYouTubeId,
+            int rentalPeriodInMinutes) {
+
+        // Error checking
+        if (!TextUtils.isEmpty(aYouTubeId) || aYouTubeId == null) {return;}
+        if (rentalPeriodInMinutes == 0) {return;}
+
+        // Schedule job
+        int rentalPeriodInSeconds = (int) TimeUnit.MINUTES.toSeconds(rentalPeriodInMinutes);
+        Bundle extras = new Bundle();
+        extras.putString(YOUTUBE_ID, aYouTubeId);
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
+
+        Job updateMovieJob = dispatcher.newJobBuilder()
+                .setService(UpdateMoviesFirebaseJobService.class)
+                .setTag(aYouTubeId)
+                .setExtras(extras)
+                .setRecurring(true)
+                .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
+                .setTrigger(Trigger.executionWindow(
+                        rentalPeriodInSeconds,
+                        SYNC_FLEXTIME_SECONDS))
+                .setReplaceCurrent(false)
+                .setConstraints(Constraint.ON_ANY_NETWORK)
+                .build();
+
+        dispatcher.mustSchedule(updateMovieJob);
+
+        Log.v("TAG", "Job scheduled!");
+
     }
 
     public static void cancelAllJobs(final Context context) {

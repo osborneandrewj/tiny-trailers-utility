@@ -1,4 +1,4 @@
-package com.example.android.tinytrailersutility.rest;
+package com.example.android.tinytrailersutility.services;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
@@ -8,6 +8,7 @@ import com.example.android.tinytrailersutility.BuildConfig;
 import com.example.android.tinytrailersutility.bus.OnMovieReceivedEvent;
 import com.example.android.tinytrailersutility.bus.OnMovieStatsReceivedEvent;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
+import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.services.DatabaseService;
 import com.squareup.otto.Bus;
 
@@ -73,10 +74,7 @@ public class MovieService {
         });
     }
 
-    public void updateMoviesSilently(Context context, String idList) {
-
-        //DatabaseService databaseService = new DatabaseService(context, null);
-        //idList = databaseService.getYouTubeIdListFromDatabase(context);
+    public void updateAllMovies(Context context, String idList) {
 
         if (idList == null) return;
 

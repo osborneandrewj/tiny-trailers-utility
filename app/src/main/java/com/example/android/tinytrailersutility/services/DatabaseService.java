@@ -112,7 +112,7 @@ public class DatabaseService {
         // Really?
     }
 
-    public ArrayList<String> getYouTubeIdListFromDatabase(@Nullable Context context) {
+    public ArrayList<String> getYouTubeIdsFromLocalMovies(@Nullable Context context) {
         if (mContext == null) mContext = context;
         TinyDbHelper helper = new TinyDbHelper(mContext);
         SQLiteDatabase database = helper.getReadableDatabase();
@@ -141,22 +141,21 @@ public class DatabaseService {
         return youTubeIdList;
     }
 
-    public void updateTicketsSold(YoutubeMovie updatedMovieStatsList) {
+    /**
+     * Update the local database with new movie data from YouTube
+     *
+     * @param newMovieData is the data object from YouTube. This may contain a single movie
+     *                     item or a multiple movie items.
+     */
+    public void updateLocalMoviesWithNewData(YoutubeMovie newMovieData) {
 
         TinyDbHelper helper = new TinyDbHelper(mContext);
         SQLiteDatabase database = helper.getWritableDatabase();
 
-        // Get item ID
-        List<Item> itemList = updatedMovieStatsList.getItems();
-        Log.v(TAG, "itemList size: " + itemList.size());
-        ArrayList<String> idArrayList = new ArrayList<>();
+        List<Item> newMovieList = newMovieData.getItems();
+        for (int i = 0; i <= newMovieList.size() - 1; i++) {
 
-        for (int i = 0; i <= itemList.size() - 1; i++) {
-            //idArrayList.add(itemList.get(i).getId());
-
-            String[] selectionArgs = new String[] {itemList.get(i).getId()};
-
-            Statistics updatedStats = itemList.get(i).getStatistics();
+            String[] selectionArgs = new String[] {newMovieList.get(i).getId()};
 
             Cursor cursor = database.query(
                     TinyDbContract.TinyDbEntry.TABLE_NAME,
@@ -168,46 +167,38 @@ public class DatabaseService {
                     null
             );
 
+            // Find which local data needs to be updated
             while (cursor.moveToNext()) {
-                String currentViews = updatedStats.getViewCount();
+
+                Statistics updatedStats = newMovieList.get(i).getStatistics();
+                String updatedCurrentViewCount = updatedStats.getViewCount();
                 String startingViews = null;
                 String ticketsSold = null;
-//                if (cursor.getString(cursor.getColumnIndexOrThrow(
-//                        TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS)) != null) {
-//                    currentViews = cursor.getString(cursor.getColumnIndexOrThrow(
-//                            TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS));
-//                }
+
+                // Get the movie's view count when it was rented
                 if (cursor.getString(cursor.getColumnIndexOrThrow(
                         TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS)) != null) {
                     startingViews = cursor.getString(cursor.getColumnIndexOrThrow(
                             TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS));
                 }
-                if (currentViews != null && startingViews != null) {
+                // Figure out how many tickets have been sold
+                if (updatedCurrentViewCount != null && startingViews != null) {
                     ticketsSold = String.valueOf(MyTicketUtilities.getNumberOfTicketsSold(
-                            startingViews, currentViews));
+                            startingViews, updatedCurrentViewCount));
                 }
-
+                // Plug this into the local database
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS, currentViews);
+                contentValues.put(TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS, updatedCurrentViewCount);
                 contentValues.put(TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD, ticketsSold);
-
-                int updateInt = mContext.getContentResolver().update(
+                mContext.getContentResolver().update(
                         TinyDbContract.TinyDbEntry.CONTENT_URI,
                         contentValues,
                         null,
                         selectionArgs
                 );
-
-                Log.v(TAG, "Updated: " + updateInt);
             }
 
             cursor.close();
         }
-        //String[] selectionArgs = idArrayList.toArray(new String[idArrayList.size()]);
-
-        //String[] selectionArgs = new String[] {item.getId()};
-
-
-
     }
 }
