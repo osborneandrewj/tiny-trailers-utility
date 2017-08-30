@@ -36,7 +36,7 @@ public class UpdateTasks {
         DatabaseService databaseService = new DatabaseService(context, null);
 
         //MovieService movieService = new MovieService(buildApi(), )
-        ArrayList<String> list = databaseService.getYouTubeIdListFromDatabase();
+        ArrayList<String> list = databaseService.getYouTubeIdListFromDatabase(context);
         for (String id : list) {
 
         }

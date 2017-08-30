@@ -24,7 +24,7 @@ public interface YouTubeApi {
 
     @GET("videos")
     Call<YoutubeMovie> getMultipleMovieDetails(
-            @Query("id[]") ArrayList<String> movieIdList,
+            @Query("id") String movieIdList,
             @Query("key") String apiKey,
             @Query("part") String part);
 }

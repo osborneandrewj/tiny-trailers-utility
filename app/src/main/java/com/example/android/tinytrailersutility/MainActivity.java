@@ -25,6 +25,7 @@ import com.example.android.tinytrailersutility.adapters.TinyMovieLightAdapter;
 import com.example.android.tinytrailersutility.bus.BusProvider;
 import com.example.android.tinytrailersutility.bus.OnMovieStatsReceivedEvent;
 import com.example.android.tinytrailersutility.database.TinyDbContract;
+import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 import com.example.android.tinytrailersutility.rest.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
@@ -37,6 +38,9 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Red camera icon by: Hanan from flaticon.com
@@ -100,11 +104,34 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void refreshData() {
-        ArrayList<String> idList = mDatabaseService.getYouTubeIdListFromDatabase();
+        ArrayList<String> idList = mDatabaseService.getYouTubeIdListFromDatabase(this);
         Log.v(TAG, "Size of list: " + idList.size());
         for (String id : idList) {
             mMovieService.getMovieStatistics(id);
         }
+    }
+
+    public void testRefreshData() {
+        ArrayList<String> idList = mDatabaseService.getYouTubeIdListFromDatabase(this);
+        String idString = android.text.TextUtils.join(",", idList);
+
+        final Call<YoutubeMovie> updateMoviesSilently = buildApi()
+                .getMultipleMovieDetails(
+                        idString,
+                        MovieService.mKey,
+                        MovieService.mStatistics);
+        updateMoviesSilently.enqueue(new Callback<YoutubeMovie>() {
+            @Override
+            public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
+                Log.v("TAG", "Response: " + call.request().url());
+                mDatabaseService.updateTicketsSold(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<YoutubeMovie> call, Throwable t) {
+
+            }
+        });
     }
 
     public void openAddMovieActivity() {
@@ -157,9 +184,9 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
             FirebaseJobUtils.cancelAllJobs(this);
         } else if (id == R.id.nav_gallery) {
-
+            FirebaseJobUtils.scheduleMovieUpdate(this);
         } else if (id == R.id.nav_slideshow) {
-
+            testRefreshData();
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {

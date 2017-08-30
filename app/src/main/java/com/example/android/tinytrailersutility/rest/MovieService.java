@@ -8,6 +8,7 @@ import com.example.android.tinytrailersutility.BuildConfig;
 import com.example.android.tinytrailersutility.bus.OnMovieReceivedEvent;
 import com.example.android.tinytrailersutility.bus.OnMovieStatsReceivedEvent;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
+import com.example.android.tinytrailersutility.services.DatabaseService;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
@@ -23,9 +24,9 @@ import retrofit2.Response;
 
 public class MovieService {
 
-    private static final String mKey = BuildConfig.YOUTUBE_API_KEY;
-    private static final String mStatistics = "statistics";
-    private static final String mStatisticsAndSnippet = "statistics,snippet";
+    public static final String mKey = BuildConfig.YOUTUBE_API_KEY;
+    public static final String mStatistics = "statistics";
+    public static final String mStatisticsAndSnippet = "statistics,snippet";
 
     private YouTubeApi mYouTubeApi;
     private Bus mBus;
@@ -72,7 +73,10 @@ public class MovieService {
         });
     }
 
-    public void updateMoviesSilently(Context context, ArrayList<String> idList) {
+    public void updateMoviesSilently(Context context, String idList) {
+
+        //DatabaseService databaseService = new DatabaseService(context, null);
+        //idList = databaseService.getYouTubeIdListFromDatabase(context);
 
         if (idList == null) return;
 

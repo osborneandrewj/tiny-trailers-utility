@@ -29,10 +29,8 @@ public class MyLinkUtils {
         String id = "";
         if (uri.getQueryParameter("v") != null) {
             id = uri.getQueryParameter("v");
-            Log.v(TAG, "Got a query parameter: " + id);
         } else {
             id = uri.getLastPathSegment();
-            Log.v(TAG, "Got a path segment: " + id);
         }
         return id;
     }

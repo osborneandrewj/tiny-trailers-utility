@@ -86,13 +86,12 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     private void onSelectVideoButtonClicked() {
 
         if (!TextUtils.isEmpty(mLinkEditText.getText().toString())) {
+
             String inputString = mLinkEditText.getText().toString();
             String youTubeId = MyLinkUtils.getYoutubeIdFromLink(inputString);
 
             if (youTubeId == null) return;
             mMovieService.getMovieStatisticsAndSnippet(youTubeId);
-
-            FirebaseJobUtils.scheduleMovieUpdate(this);
         }
         // Clear the EditText
         mLinkEditText.setText("");

@@ -18,6 +18,7 @@ import com.example.android.tinytrailersutility.utilities.MyTicketUtilities;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by zark on 8/28/17.
@@ -111,7 +112,8 @@ public class DatabaseService {
         // Really?
     }
 
-    public ArrayList<String> getYouTubeIdListFromDatabase() {
+    public ArrayList<String> getYouTubeIdListFromDatabase(@Nullable Context context) {
+        if (mContext == null) mContext = context;
         TinyDbHelper helper = new TinyDbHelper(mContext);
         SQLiteDatabase database = helper.getReadableDatabase();
         Cursor cursor = database.query(
@@ -139,56 +141,73 @@ public class DatabaseService {
         return youTubeIdList;
     }
 
-    public void updateTicketsSold(YoutubeMovie updatedMovieStats) {
-
-        // Get item ID
-        Item item = updatedMovieStats.getItems().get(0);
-        String[] selectionArgs = new String[] {item.getId()};
+    public void updateTicketsSold(YoutubeMovie updatedMovieStatsList) {
 
         TinyDbHelper helper = new TinyDbHelper(mContext);
         SQLiteDatabase database = helper.getWritableDatabase();
-        Cursor cursor = database.query(
-                TinyDbContract.TinyDbEntry.TABLE_NAME,
-                mFullProjection,
-                TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID + "=?",
-                selectionArgs,
-                null,
-                null,
-                null
-        );
 
-        while (cursor.moveToNext()) {
-            String currentViews = null;
-            String startingViews = null;
-            String ticketsSold = null;
-            if (cursor.getString(cursor.getColumnIndexOrThrow(
-                    TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS)) != null) {
-                currentViews = cursor.getString(cursor.getColumnIndexOrThrow(
-                        TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS));
-            }
-            if (cursor.getString(cursor.getColumnIndexOrThrow(
-                    TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS)) != null) {
-                startingViews = cursor.getString(cursor.getColumnIndexOrThrow(
-                        TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS));
-            }
-            if (currentViews != null && startingViews != null) {
-                ticketsSold = String.valueOf(MyTicketUtilities.getNumberOfTicketsSold(
-                        startingViews, currentViews));
-            }
+        // Get item ID
+        List<Item> itemList = updatedMovieStatsList.getItems();
+        Log.v(TAG, "itemList size: " + itemList.size());
+        ArrayList<String> idArrayList = new ArrayList<>();
 
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD, ticketsSold);
+        for (int i = 0; i <= itemList.size() - 1; i++) {
+            //idArrayList.add(itemList.get(i).getId());
 
-            int updateInt = mContext.getContentResolver().update(
-                    TinyDbContract.TinyDbEntry.CONTENT_URI,
-                    contentValues,
+            String[] selectionArgs = new String[] {itemList.get(i).getId()};
+
+            Statistics updatedStats = itemList.get(i).getStatistics();
+
+            Cursor cursor = database.query(
+                    TinyDbContract.TinyDbEntry.TABLE_NAME,
+                    mFullProjection,
+                    TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID + "=?",
+                    selectionArgs,
                     null,
-                    selectionArgs
+                    null,
+                    null
             );
 
-            Log.v(TAG, "Updated: " + updateInt);
-        }
+            while (cursor.moveToNext()) {
+                String currentViews = updatedStats.getViewCount();
+                String startingViews = null;
+                String ticketsSold = null;
+//                if (cursor.getString(cursor.getColumnIndexOrThrow(
+//                        TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS)) != null) {
+//                    currentViews = cursor.getString(cursor.getColumnIndexOrThrow(
+//                            TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS));
+//                }
+                if (cursor.getString(cursor.getColumnIndexOrThrow(
+                        TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS)) != null) {
+                    startingViews = cursor.getString(cursor.getColumnIndexOrThrow(
+                            TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS));
+                }
+                if (currentViews != null && startingViews != null) {
+                    ticketsSold = String.valueOf(MyTicketUtilities.getNumberOfTicketsSold(
+                            startingViews, currentViews));
+                }
 
-        cursor.close();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS, currentViews);
+                contentValues.put(TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD, ticketsSold);
+
+                int updateInt = mContext.getContentResolver().update(
+                        TinyDbContract.TinyDbEntry.CONTENT_URI,
+                        contentValues,
+                        null,
+                        selectionArgs
+                );
+
+                Log.v(TAG, "Updated: " + updateInt);
+            }
+
+            cursor.close();
+        }
+        //String[] selectionArgs = idArrayList.toArray(new String[idArrayList.size()]);
+
+        //String[] selectionArgs = new String[] {item.getId()};
+
+
+
     }
 }
