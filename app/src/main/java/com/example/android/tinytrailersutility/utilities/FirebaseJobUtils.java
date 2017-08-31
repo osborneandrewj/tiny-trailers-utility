@@ -68,26 +68,27 @@ public class FirebaseJobUtils {
             String aYouTubeId,
             int rentalPeriodInMinutes) {
 
+        Log.v("TAG", "Starting to schedule a job..." + aYouTubeId + " " + rentalPeriodInMinutes);
         // Error checking
-        if (!TextUtils.isEmpty(aYouTubeId) || aYouTubeId == null) {return;}
+        if (TextUtils.isEmpty(aYouTubeId) || aYouTubeId == null) {return;}
         if (rentalPeriodInMinutes == 0) {return;}
 
         // Schedule job
         int rentalPeriodInSeconds = (int) TimeUnit.MINUTES.toSeconds(rentalPeriodInMinutes);
         Bundle extras = new Bundle();
         extras.putString(YOUTUBE_ID, aYouTubeId);
-        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
 
+        FirebaseJobDispatcher dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(context));
         Job updateMovieJob = dispatcher.newJobBuilder()
                 .setService(UpdateMoviesFirebaseJobService.class)
                 .setTag(aYouTubeId)
                 .setExtras(extras)
-                .setRecurring(true)
+                .setRecurring(false)
                 .setLifetime(Lifetime.UNTIL_NEXT_BOOT)
                 .setTrigger(Trigger.executionWindow(
                         rentalPeriodInSeconds,
-                        SYNC_FLEXTIME_SECONDS))
-                .setReplaceCurrent(false)
+                        rentalPeriodInSeconds + SYNC_FLEXTIME_SECONDS))
+                .setReplaceCurrent(true)
                 .setConstraints(Constraint.ON_ANY_NETWORK)
                 .build();
 

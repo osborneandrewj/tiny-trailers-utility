@@ -99,7 +99,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         switch (position) {
             case 0:
-                mRentalLength = "10";
+                mRentalLength = "1";
                 break;
             case 1:
                 mRentalLength = "20";
@@ -145,6 +145,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         YoutubeMovie newMovie = event.mNewMovie;
         Log.v(TAG, "Got an actual thing here: " + newMovie.getEtag());
         mDatabaseService.addTinyMovieToDatabase(newMovie, mRentalLength);
+        scheduleRentalJobs();
         finish();
     }
 

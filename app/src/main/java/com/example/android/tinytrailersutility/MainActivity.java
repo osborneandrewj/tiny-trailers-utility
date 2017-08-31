@@ -134,6 +134,10 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    public void deleteMovies() {
+        mDatabaseService.deleteEntireDatabase();
+    }
+
     public void openAddMovieActivity() {
         Intent intent = new Intent(this, AddMovieActivity.class);
         startActivity(intent);
@@ -169,6 +173,9 @@ public class MainActivity extends AppCompatActivity
         }
         if (id == R.id.action_refresh_data) {
             refreshData();
+        }
+        if (id == R.id.action_delete_movies) {
+            deleteMovies();
         }
 
         return super.onOptionsItemSelected(item);

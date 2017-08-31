@@ -23,12 +23,16 @@ import retrofit2.Response;
 
 public final class UpdateMoviesFirebaseJobService extends JobService {
 
+    private static final String YOUTUBE_ID = "youtube_id";
     private AsyncTask mBackgroundTask;
     private ArrayList<String> mIdList;
     private YouTubeApi mYouTubeApi;
+    private String mYouTubeId;
 
     @Override
     public boolean onStartJob(final JobParameters job) {
+
+        mYouTubeId = job.getExtras().getString(YOUTUBE_ID);
 
         Log.v("TAG", "Starting a job...");
 
@@ -40,16 +44,16 @@ public final class UpdateMoviesFirebaseJobService extends JobService {
                 Context context = UpdateMoviesFirebaseJobService.this;
 
                 final DatabaseService databaseService = new DatabaseService(context, null);
-                mIdList = databaseService.getYouTubeIdsFromLocalMovies(null);
-                String idString = android.text.TextUtils.join(",", mIdList);
+                //mIdList = databaseService.getYouTubeIdsFromLocalMovies(null);
+                //String idString = android.text.TextUtils.join(",", mIdList);
 
                 mYouTubeApi = YouTubeApiClient.getClient().create(YouTubeApi.class);
 
-                if (mIdList == null) return null;
+                //if (mIdList == null) return null;
 
                 final Call<YoutubeMovie> updateAllMovies = mYouTubeApi
                         .getMultipleMovieDetails(
-                                idString,
+                                mYouTubeId,
                                 MovieService.mKey,
                                 MovieService.mStatistics);
                 updateAllMovies.enqueue(new Callback<YoutubeMovie>() {

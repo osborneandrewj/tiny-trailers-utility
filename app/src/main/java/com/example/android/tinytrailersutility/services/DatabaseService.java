@@ -201,4 +201,12 @@ public class DatabaseService {
             cursor.close();
         }
     }
+
+    public void deleteEntireDatabase() {
+
+        mContext.getContentResolver().delete(
+                TinyDbContract.TinyDbEntry.CONTENT_URI,
+                null,
+                null);
+    }
 }

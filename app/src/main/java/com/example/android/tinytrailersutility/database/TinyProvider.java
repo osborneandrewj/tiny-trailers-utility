@@ -104,7 +104,7 @@ public class TinyProvider extends ContentProvider {
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case TINY_DB:
-                return deleteTinyMovie(uri, selection, selectionArgs);
+                return deleteTinyDatabase(uri);
             case TINY_DB_ITEM:
                 selection = TinyDbContract.TinyDbEntry._ID;
                 selectionArgs = new String[] {String.valueOf(ContentUris.parseId(uri))};
@@ -152,6 +152,19 @@ public class TinyProvider extends ContentProvider {
                 TinyDbContract.TinyDbEntry.TABLE_NAME,
                 selection + "=?",
                 selectionArgs);
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return numberOfRowsDeleted;
+    }
+
+    private int deleteTinyDatabase(Uri uri) {
+        SQLiteDatabase database = mTinyDbHelper.getWritableDatabase();
+
+        int numberOfRowsDeleted = database.delete(
+                TinyDbContract.TinyDbEntry.TABLE_NAME,
+                null,
+                null);
 
         getContext().getContentResolver().notifyChange(uri, null);
 

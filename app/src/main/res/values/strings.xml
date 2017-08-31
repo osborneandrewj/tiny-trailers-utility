@@ -11,9 +11,9 @@
     <string name="text_enter_rental">Select Rental Period:</string>
     <string name="btn_book_text">Select Video</string>
     <string-array name="rental_length_array">
-        <item>1 Hour</item>
-        <item>2 Hours</item>
-        <item>3 Hours</item>
+        <item>10 mins</item>
+        <item>20 mins</item>
+        <item>30 mins</item>
     </string-array>
     <string name="spinner_prompt">select length</string>
 
@@ -23,7 +23,7 @@
     <string name="label_start_time">Start time:</string>
     <string name="label_time_elapsed">Time elapsed:</string>
     <string name="label_minutes">mins</string>
-    <string name="label_hours">hours</string>
+    <string name="label_hours">mins</string>
     <string name="label_starting_views">Starting views:</string>
     <string name="label_current_views">Current views:</string>
     <string name="label_views_claimed">Tickets sold:</string>
