@@ -12,8 +12,8 @@
     <string name="btn_book_text">Select Video</string>
     <string-array name="rental_length_array">
         <item>10 mins</item>
-        <item>20 mins</item>
-        <item>30 mins</item>
+        <item>15 mins</item>
+        <item>25 mins</item>
     </string-array>
     <string name="spinner_prompt">select length</string>
 

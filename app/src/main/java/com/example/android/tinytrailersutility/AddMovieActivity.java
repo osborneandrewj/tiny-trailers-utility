@@ -99,13 +99,13 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
         switch (position) {
             case 0:
-                mRentalLength = "1";
+                mRentalLength = "10";
                 break;
             case 1:
-                mRentalLength = "20";
+                mRentalLength = "15";
                 break;
             case 2:
-                mRentalLength = "30";
+                mRentalLength = "25";
                 break;
             default:
                 mRentalLength = "10";

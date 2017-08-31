@@ -176,6 +176,7 @@ public class MainActivity extends AppCompatActivity
         }
         if (id == R.id.action_delete_movies) {
             deleteMovies();
+            FirebaseJobUtils.cancelAllJobs(this);
         }
 
         return super.onOptionsItemSelected(item);
