@@ -44,6 +44,8 @@ import retrofit2.Response;
 
 /**
  * Red camera icon by: Hanan from flaticon.com
+ * Tickets launcher icon by: Dimi Kazak from flaticon.com
+ *
  */
 
 public class MainActivity extends AppCompatActivity
