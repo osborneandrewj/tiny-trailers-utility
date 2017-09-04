@@ -6,49 +6,6 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/label_start_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/label_start_time"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_youtube_name"
-        android:layout_marginStart="8dp" />
-
-    <TextView
-        android:id="@+id/tv_start_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="64dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toRightOf="@+id/label_start_time"
-        app:layout_constraintTop_toBottomOf="@+id/tv_youtube_name"
-        tools:text="6516541651651"
-        android:layout_marginStart="64dp" />
-
-    <TextView
-        android:id="@+id/label_rental_period"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:text="@string/label_rental_length"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/label_start_time" />
-
-    <TextView
-        android:id="@+id/tv_rental_period"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toLeftOf="@+id/tv_start_time"
-        app:layout_constraintTop_toBottomOf="@+id/label_start_time"
-        tools:text="6" />
-
-    <TextView
         android:id="@+id/tv_youtube_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -59,48 +16,6 @@
         android:layout_marginLeft="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginStart="8dp" />
-
-    <TextView
-        android:id="@+id/label_starting_views"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:text="@string/label_starting_views"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView4" />
-
-    <TextView
-        android:id="@+id/tv_starting_views"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintLeft_toLeftOf="@+id/tv_start_time"
-        tools:text="32454"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/tv_minutes_elapsed" />
-
-    <TextView
-        android:id="@+id/label_current_views"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/label_current_views"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/label_starting_views"
-        android:layout_marginStart="8dp" />
-
-    <TextView
-        android:id="@+id/tv_current_views"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toLeftOf="@+id/tv_start_time"
-        app:layout_constraintTop_toBottomOf="@+id/tv_starting_views"
-        tools:text="34535345"
-        android:layout_marginLeft="0dp" />
 
     <TextView
         android:id="@+id/textView3"
@@ -119,16 +34,16 @@
         android:layout_marginTop="8dp"
         android:text="@string/label_time_elapsed"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/label_rental_period" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_youtube_name" />
 
     <TextView
         android:id="@+id/tv_minutes_elapsed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toLeftOf="@+id/tv_start_time"
-        app:layout_constraintTop_toBottomOf="@+id/tv_rental_period"
+        app:layout_constraintStart_toEndOf="@+id/textView4"
+        app:layout_constraintTop_toBottomOf="@+id/tv_youtube_name"
         tools:text="35" />
 
     <TextView
@@ -139,17 +54,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/label_minutes"
         app:layout_constraintLeft_toRightOf="@+id/tv_minutes_elapsed"
-        app:layout_constraintTop_toBottomOf="@+id/tv_rental_period" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/label_hours"
-        app:layout_constraintLeft_toRightOf="@+id/tv_rental_period"
-        app:layout_constraintTop_toBottomOf="@+id/tv_start_time" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_youtube_name" />
 
     <TextView
         android:id="@+id/textView7"
@@ -159,15 +64,14 @@
         android:layout_marginTop="8dp"
         android:text="@string/label_views_claimed"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/label_current_views" />
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
     <TextView
         android:id="@+id/tv_tickets_sold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toLeftOf="@+id/tv_start_time"
-        app:layout_constraintTop_toBottomOf="@+id/tv_current_views"
+        app:layout_constraintStart_toStartOf="@+id/tv_minutes_elapsed"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
         tools:text="23523" />
 </android.support.constraint.ConstraintLayout>

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -19,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 
 import com.example.android.tinytrailersutility.adapters.TinyMovieLightAdapter;
@@ -97,6 +100,13 @@ public class MainActivity extends AppCompatActivity
 
         if (mMovieService == null) mMovieService = new MovieService(buildApi(), mBus);
         if (mDatabaseService == null) mDatabaseService = new DatabaseService(this, mBus);
+
+        // Add the status bar fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        StatusFragment statusFragment = new StatusFragment();
+        fragmentTransaction.add(R.id.container_status, statusFragment);
+        fragmentTransaction.commit();
     }
 
     @Override
