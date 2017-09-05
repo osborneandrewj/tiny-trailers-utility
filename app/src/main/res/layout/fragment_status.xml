@@ -36,4 +36,16 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_cash_total"
         app:layout_constraintVertical_bias="0.5"
         tools:text="$" />
+
+    <Button
+        android:id="@+id/btn_test_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Button"
+        app:layout_constraintBottom_toTopOf="@+id/tv_cash_total"
+        app:layout_constraintLeft_toRightOf="@+id/tv_cash_total"
+        app:layout_constraintTop_toBottomOf="@+id/tv_cash_total" />
 </android.support.constraint.ConstraintLayout>
