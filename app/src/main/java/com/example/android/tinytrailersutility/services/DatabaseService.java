@@ -210,4 +210,15 @@ public class DatabaseService {
                 null,
                 null);
     }
+
+    public void deleteMovieById(String aYouTubeId) {
+
+        String[] selectionArgs = new String[]{aYouTubeId};
+
+        mContext.getContentResolver().delete(
+                TinyDbContract.TinyDbEntry.CONTENT_URI,
+                TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID + "=?",
+                selectionArgs
+        );
+    }
 }

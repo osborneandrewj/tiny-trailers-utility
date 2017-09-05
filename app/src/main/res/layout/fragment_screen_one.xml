@@ -11,11 +11,24 @@
     android:background="@android:color/background_light"
     tools:context="com.example.android.tinytrailersutility.ScreenOneFragment">
 
+    <Button
+        android:id="@+id/btn_complete_one"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="false"
+        android:text="@string/btn_complete_one" />
+
     <TextView
         android:id="@+id/m1_empty_view"
-        android:layout_centerInParent="true"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_centerVertical="false"
+        android:gravity="center"
+        android:text="@string/empty_view_text"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
 
     <android.support.constraint.ConstraintLayout

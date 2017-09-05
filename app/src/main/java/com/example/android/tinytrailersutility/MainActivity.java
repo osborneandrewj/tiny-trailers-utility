@@ -8,7 +8,6 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,7 +22,6 @@ import android.widget.FrameLayout;
 
 import com.example.android.tinytrailersutility.bus.BusProvider;
 import com.example.android.tinytrailersutility.bus.OnMovieStatsReceivedEvent;
-import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 import com.example.android.tinytrailersutility.services.MovieService;
 import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
@@ -32,13 +30,8 @@ import com.example.android.tinytrailersutility.utilities.FirebaseJobUtils;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import java.util.ArrayList;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Red camera icon by: Hanan from flaticon.com
@@ -127,37 +120,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void refreshData() {
-        ArrayList<String> idList = mDatabaseService.getYouTubeIdsFromLocalMovies(this);
-        Log.v(TAG, "Size of list: " + idList.size());
-        for (String id : idList) {
-            mMovieService.getMovieStatistics(id);
-        }
-    }
-
-    public void testRefreshData() {
-        ArrayList<String> idList = mDatabaseService.getYouTubeIdsFromLocalMovies(this);
-        String idString = android.text.TextUtils.join(",", idList);
-
-        final Call<YoutubeMovie> updateMoviesSilently = buildApi()
-                .getMultipleMovieDetails(
-                        idString,
-                        MovieService.mKey,
-                        MovieService.mStatistics);
-        updateMoviesSilently.enqueue(new Callback<YoutubeMovie>() {
-            @Override
-            public void onResponse(Call<YoutubeMovie> call, Response<YoutubeMovie> response) {
-                Log.v("TAG", "Response: " + call.request().url());
-                mDatabaseService.updateLocalMoviesWithNewData(response.body());
-            }
-
-            @Override
-            public void onFailure(Call<YoutubeMovie> call, Throwable t) {
-
-            }
-        });
-    }
-
     public void deleteMovies() {
         mDatabaseService.deleteEntireDatabase();
     }
@@ -197,7 +159,6 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         if (id == R.id.action_refresh_data) {
-            refreshData();
         }
         if (id == R.id.action_delete_movies) {
             deleteMovies();
@@ -219,7 +180,6 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_gallery) {
             FirebaseJobUtils.scheduleMovieUpdate(this);
         } else if (id == R.id.nav_slideshow) {
-            testRefreshData();
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {
