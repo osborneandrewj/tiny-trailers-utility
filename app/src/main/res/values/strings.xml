@@ -4,7 +4,14 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="preference_screen_one_key">com.example.android.tinytrailersutility.PREFERENCE_SCREEN_ONE_KEY</string>
+    <string name="preference_screen_two_key">com.example.android.tinytrailersutility.PREFERENCE_SCREEN_TWO_KEY</string>
+
     <string name="action_settings">Settings</string>
+
+    <!--MainActivity-->
+    <string name="label_movie_playing">Showing for:</string>
+    <string name="label_tickets_sold">Tickets sold:</string>
 
     <!--AddMovieActivity-->
     <string name="text_enter_link">Paste YouTube link</string>
@@ -28,6 +35,4 @@
     <string name="label_current_views">Current views:</string>
     <string name="label_views_claimed">Tickets sold:</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -1,32 +1,135 @@
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.android.tinytrailersutility.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
     <FrameLayout
         android:id="@+id/container_status"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"></FrameLayout>
 
-    </FrameLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_tiny_movies"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/container_screen_one"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="-9dp"
+        android:background="@android:color/background_light"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/container_status">
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_minutes"
+            app:layout_constraintLeft_toRightOf="@+id/tv_time_left_m1"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_name_m1" />
+
+        <TextView
+            android:id="@+id/tv_tickets_sold_m1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintLeft_toLeftOf="@+id/tv_time_left_m1"
+            app:layout_constraintTop_toBottomOf="@+id/tv_time_left_m1"
+            tools:text="452" />
+
+        <TextView
+            android:id="@+id/tv_time_left_m1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="71dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintLeft_toRightOf="@+id/label_time_left_m1"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_name_m1"
+            tools:text="4:58" />
+
+        <TextView
+            android:id="@+id/label_tickets_sold_m1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/label_tickets_sold"
+            app:layout_constraintLeft_toLeftOf="@+id/label_time_left_m1"
+            app:layout_constraintTop_toBottomOf="@+id/label_time_left_m1"
+            tools:text="Tickets sold:" />
+
+        <TextView
+            android:id="@+id/label_time_left_m1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/label_movie_playing"
+            app:layout_constraintLeft_toLeftOf="@+id/tv_movie_name_m1"
+            app:layout_constraintTop_toBottomOf="@+id/tv_movie_name_m1" />
+
+        <TextView
+            android:id="@+id/tv_movie_name_m1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Movie Name 2017" />
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/container_screen_two"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/container_status" />
-</android.support.constraint.ConstraintLayout>
+        android:background="@android:color/background_light"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/container_screen_one">
+
+        <TextView
+            android:id="@+id/tv_movie_name_m2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            tools:text="Movie Name 2016" />
+    </android.support.constraint.ConstraintLayout>
+
+    <!--<android.support.v7.widget.RecyclerView-->
+    <!--android:id="@+id/rv_tiny_movies"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginLeft="8dp"-->
+    <!--android:layout_marginRight="8dp"-->
+    <!--app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--app:layout_constraintRight_toRightOf="parent"-->
+    <!--android:layout_marginStart="8dp"-->
+    <!--android:layout_marginEnd="8dp"-->
+    <!--android:layout_marginTop="8dp"-->
+    <!--app:layout_constraintTop_toBottomOf="@+id/container_status" />-->
+
+
+</LinearLayout>

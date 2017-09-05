@@ -1,5 +1,7 @@
 package com.example.android.tinytrailersutility;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,6 +38,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     private static final String TAG = AddMovieActivity.class.getSimpleName();
     private static final int UPDATE_SUCCESSFUL = 100;
     private static final int UPDATE_FAILED = -1;
+    private static final String SCREEN_ONE_KEY = "screen-one-key";
     private String mRentalLength;
     private String mYouTubeId;
     private YouTubeApi mService;
@@ -89,7 +92,15 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
             mYouTubeId = MyLinkUtils.getYoutubeIdFromLink(inputString);
 
             if (mYouTubeId == null) return;
+
+            // Attach movie to screen
+            Log.v(TAG, "mYouTubeId = " + mYouTubeId);
+            SharedPreferences sharedPrefs = getSharedPreferences("tinytrailerutilityScreenSettings", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPrefs.edit();
+            editor.putString(SCREEN_ONE_KEY, mYouTubeId);
+            editor.commit();
             mMovieService.getMovieStatisticsAndSnippet(mYouTubeId);
+
         }
         // Clear the EditText
         mLinkEditText.setText("");

@@ -27,7 +27,7 @@ public class FirebaseJobUtils {
 
     private static final int UPDATE_INTERVAL_MINUTES = 1;
     private static final int UPDATE_INTERVAL_SECONDS = (int) (TimeUnit.MINUTES.toSeconds(UPDATE_INTERVAL_MINUTES));
-    private static final int SYNC_FLEXTIME_SECONDS = 30;
+    private static final int SYNC_FLEXTIME_SECONDS = 5;
 
     private static final String UPDATE_JOB_TAG = "update_movies_tag";
     private static final String YOUTUBE_ID = "youtube_id";

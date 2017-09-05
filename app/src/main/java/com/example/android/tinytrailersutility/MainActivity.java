@@ -1,8 +1,12 @@
 package com.example.android.tinytrailersutility;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -22,6 +26,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 
 import com.example.android.tinytrailersutility.adapters.TinyMovieLightAdapter;
@@ -34,10 +39,12 @@ import com.example.android.tinytrailersutility.rest.YouTubeApi;
 import com.example.android.tinytrailersutility.rest.YouTubeApiClient;
 import com.example.android.tinytrailersutility.services.DatabaseService;
 import com.example.android.tinytrailersutility.utilities.FirebaseJobUtils;
+import com.example.android.tinytrailersutility.utilities.MyTimeUtils;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,7 +55,6 @@ import retrofit2.Response;
 /**
  * Red camera icon by: Hanan from flaticon.com
  * Tickets launcher icon by: Dimi Kazak from flaticon.com
- *
  */
 
 public class MainActivity extends AppCompatActivity
@@ -57,17 +63,33 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int UNIQUE_ID_FOR_LOADER = 1986;
-    private TinyMovieLightAdapter mMovieLightAdapter;
+    private static final String SCREEN_ONE_KEY = "screen-one-key";
+    private static final String SCREEN_TWO_KEY = "screen-two-key";
+    private static final String CASH_TOTAL_KEY = "cash-total-key";
+    //private TinyMovieLightAdapter mMovieLightAdapter;
     private YouTubeApi mService;
     private DatabaseService mDatabaseService;
     private MovieService mMovieService;
     private Bus mBus = BusProvider.getInstance();
+    private String mYouTubeId;
 
     @BindView(R.id.fab) FloatingActionButton fab;
-    @BindView(R.id.rv_tiny_movies) RecyclerView mTinyMovieRecyclerView;
+    //@BindView(R.id.rv_tiny_movies) RecyclerView mTinyMovieRecyclerView;
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
     @BindView(R.id.nav_view) NavigationView navigationView;
+
+    // Screen one
+    @BindView(R.id.container_screen_one) ConstraintLayout mScreenOne;
+    @BindView(R.id.tv_movie_name_m1) TextView mScreenOneMovieNameTextView;
+    @BindView(R.id.tv_time_left_m1) TextView mScreenOneTimeLeft;
+    @BindView(R.id.label_time_left_m1) TextView mLabelScreenOneTimeLeft;
+    @BindView(R.id.tv_tickets_sold_m1) TextView mScreenOneTicketsSold;
+    @BindView(R.id.label_tickets_sold_m1) TextView mLabelScreenOneTicketsSold;
+
+    // Screen two
+    @BindView(R.id.container_screen_two) ConstraintLayout mScreenTwo;
+    @BindView(R.id.tv_movie_name_m2) TextView mScreenTwoMovieNameTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +106,20 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        mScreenOne.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openAddMovieActivity();
+            }
+        });
+
+        mScreenTwo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openAddMovieActivity();
+            }
+        });
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
@@ -91,10 +127,10 @@ public class MainActivity extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        mTinyMovieRecyclerView.setHasFixedSize(true);
-        mMovieLightAdapter = new TinyMovieLightAdapter(this, null);
-        mTinyMovieRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mTinyMovieRecyclerView.setAdapter(mMovieLightAdapter);
+//        mTinyMovieRecyclerView.setHasFixedSize(true);
+//        mMovieLightAdapter = new TinyMovieLightAdapter(this, null);
+//        mTinyMovieRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        mTinyMovieRecyclerView.setAdapter(mMovieLightAdapter);
 
         getSupportLoaderManager().initLoader(UNIQUE_ID_FOR_LOADER, null, this);
 
@@ -113,6 +149,11 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         mBus.register(this);
+
+        SharedPreferences sharedPrefs = getPreferences(Context.MODE_PRIVATE);
+        mYouTubeId = sharedPrefs.getString(getString(R.string.preference_screen_one_key), "-1");
+
+
     }
 
     public void refreshData() {
@@ -222,7 +263,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String [] projection = {
+        String[] projection = {
                 TinyDbContract.TinyDbEntry._ID,
                 TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID,
                 TinyDbContract.TinyDbEntry.COLUMN_MOVIE_URI,
@@ -242,13 +283,115 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        mMovieLightAdapter.setTinyMovieData(data);
+        SharedPreferences sharedPrefs = getSharedPreferences("tinytrailerutilityScreenSettings", Context.MODE_PRIVATE);
+        Log.v(TAG, "Load finished");
+        Log.v(TAG, "Preference one: " + sharedPrefs.getString(SCREEN_ONE_KEY, "defaultValue"));
+        //mMovieLightAdapter.setTinyMovieData(data);
+
+        while (data.moveToNext()) {
+
+            // Set screen one data
+            if (data.getString(data.getColumnIndexOrThrow(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID))
+                    .equals(sharedPrefs.getString(SCREEN_ONE_KEY, "defaultValue"))) {
+                setScreenReady(SCREEN_ONE_KEY);
+                mScreenOneMovieNameTextView.setText(
+                        data.getString(data.getColumnIndexOrThrow(
+                                TinyDbContract.TinyDbEntry.COLUMN_MOVIE_NAME)));
+                mScreenOneTicketsSold.setText(data.getString(data.getColumnIndexOrThrow(
+                        TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD)));
+                // Timer
+                String startTime = data.getString(data.getColumnIndexOrThrow(
+                        TinyDbContract.TinyDbEntry.COLUMN_START_TIME));
+                String rentalLength = data.getString(data.getColumnIndexOrThrow(
+                        TinyDbContract.TinyDbEntry.COLUMN_RENTAL_LENGTH));
+                long timeLeft = MyTimeUtils.getTimeLeftInMillis(startTime, rentalLength);
+                Log.v(TAG, "time left: " + timeLeft);
+                startTimer(SCREEN_ONE_KEY, timeLeft);
+
+                // Cash
+                int ticketsSold = Integer.valueOf(data.getString(data.getColumnIndexOrThrow(
+                        TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD)));
+                int currentCash = sharedPrefs.getInt(CASH_TOTAL_KEY, 0);
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.putInt(CASH_TOTAL_KEY, currentCash + ticketsSold);
+                editor.commit();
+
+            } else {
+                setScreenToEmpty(SCREEN_ONE_KEY);
+            }
+
+            // Set screen two data
+            if (data.getString(data.getColumnIndexOrThrow(TinyDbContract.TinyDbEntry.COLUMN_MOVIE_YOUTUBE_ID))
+                    .equals(sharedPrefs.getString(SCREEN_TWO_KEY, "defaultValue"))) {
+                setScreenReady(SCREEN_TWO_KEY);
+                mScreenTwoMovieNameTextView.setText(
+                        data.getString(data.getColumnIndexOrThrow(
+                                TinyDbContract.TinyDbEntry.COLUMN_MOVIE_NAME)));
+            } else {
+                setScreenToEmpty(SCREEN_TWO_KEY);
+            }
+        }
+
+        if (!data.moveToFirst()) {
+            setScreenToEmpty(SCREEN_ONE_KEY);
+            setScreenToEmpty(SCREEN_TWO_KEY);
+        }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
+
+    private void startTimer(String aScreen, long aDuration) {
+        switch (aScreen) {
+            case SCREEN_ONE_KEY:
+                new CountDownTimer(aDuration, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        mScreenOneTimeLeft.setText(String.valueOf(millisUntilFinished / 1000));
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        mScreenOneTimeLeft.setText("0");
+                    }
+                }.start();
+                break;
+        }
+    }
+
+    private void setScreenReady(String aScreen) {
+        switch (aScreen) {
+            case SCREEN_ONE_KEY:
+                mScreenOneMovieNameTextView.setVisibility(View.VISIBLE);
+                mLabelScreenOneTimeLeft.setVisibility(View.VISIBLE);
+                mLabelScreenOneTicketsSold.setVisibility(View.VISIBLE);
+                mScreenOneTicketsSold.setVisibility(View.VISIBLE);
+                mScreenOneTimeLeft.setVisibility(View.VISIBLE);
+                break;
+            case SCREEN_TWO_KEY:
+                mScreenTwoMovieNameTextView.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
+
+
+    private void setScreenToEmpty(String aScreen) {
+        switch (aScreen) {
+            case SCREEN_ONE_KEY:
+                mScreenOneMovieNameTextView.setVisibility(View.INVISIBLE);
+                mLabelScreenOneTimeLeft.setVisibility(View.INVISIBLE);
+                mLabelScreenOneTicketsSold.setVisibility(View.INVISIBLE);
+                mScreenOneTicketsSold.setVisibility(View.INVISIBLE);
+                mScreenOneTimeLeft.setVisibility(View.INVISIBLE);
+                break;
+            case SCREEN_TWO_KEY:
+                mScreenTwoMovieNameTextView.setVisibility(View.INVISIBLE);
+                break;
+        }
+    }
+
 
     private YouTubeApi buildApi() {
         if (mService == null) {

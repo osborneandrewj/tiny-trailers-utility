@@ -25,4 +25,18 @@ public class MyTimeUtils {
 
         return String.valueOf(minutes);
     }
+
+    public static long getTimeLeftInMillis(String startTimeString, String rentalLengthString) {
+        long startTime = Long.valueOf(startTimeString);
+        long rentalLength = TimeUnit.MINUTES.toMillis(Long.valueOf(rentalLengthString));
+        long currentTime = System.currentTimeMillis();
+
+        long timeLeft = rentalLength - (currentTime - startTime);
+
+        if (timeLeft <= 0) {
+            timeLeft = 0;
+        }
+
+        return timeLeft;
+    }
 }
