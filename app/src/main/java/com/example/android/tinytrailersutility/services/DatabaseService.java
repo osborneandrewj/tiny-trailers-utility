@@ -48,7 +48,8 @@ public class DatabaseService {
             TinyDbContract.TinyDbEntry.COLUMN_START_TIME,
             TinyDbContract.TinyDbEntry.COLUMN_STARTING_VIEWS,
             TinyDbContract.TinyDbEntry.COLUMN_CURRENT_VIEWS,
-            TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD};
+            TinyDbContract.TinyDbEntry.COLUMN_TICKETS_SOLD,
+            TinyDbContract.TinyDbEntry.COLUMN_RENTAL_COMPLETE};
 
     public DatabaseService(Context context, @Nullable Bus bus) {
         mContext = context;

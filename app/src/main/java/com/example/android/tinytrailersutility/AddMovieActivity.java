@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.example.android.tinytrailersutility.bus.BusProvider;
+import com.example.android.tinytrailersutility.bus.OnMovieAttachedToScreenEvent;
 import com.example.android.tinytrailersutility.bus.OnMovieReceivedEvent;
 import com.example.android.tinytrailersutility.models.youtube.YoutubeMovie;
 import com.example.android.tinytrailersutility.services.MovieService;
@@ -38,9 +39,11 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
     private static final String TAG = AddMovieActivity.class.getSimpleName();
     private static final int UPDATE_SUCCESSFUL = 100;
     private static final int UPDATE_FAILED = -1;
+    private static final String SCREEN_EXTRA_KEY = "screen-extra-key";
     private static final String SCREEN_ONE_KEY = "screen-one-key";
     private String mRentalLength;
     private String mYouTubeId;
+    private String mWhichScreen;
     private YouTubeApi mService;
 
     private Bus mBus = BusProvider.getInstance();
@@ -57,6 +60,10 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+
+        if (getIntent().getExtras() != null) {
+            mWhichScreen = getIntent().getStringExtra(SCREEN_EXTRA_KEY);
         }
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -149,6 +156,7 @@ public class AddMovieActivity extends AppCompatActivity implements AdapterView.O
                 this,
                 mYouTubeId,
                 Integer.parseInt(mRentalLength));
+        mBus.post(new OnMovieAttachedToScreenEvent(mYouTubeId, mWhichScreen));
     }
 
     @Subscribe

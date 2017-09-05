@@ -44,6 +44,7 @@ public class TinyDbContract {
         public static final String COLUMN_STARTING_VIEWS = "starting_views";
         public static final String COLUMN_CURRENT_VIEWS = "current_views";
         public static final String COLUMN_TICKETS_SOLD = "tickets_sold";
+        public static final String COLUMN_RENTAL_COMPLETE = "rental_complete";
 
 
         /** Used to create the table */
@@ -57,6 +58,7 @@ public class TinyDbContract {
                 TinyDbEntry.COLUMN_START_TIME + " TEXT NOT NULL," +
                 TinyDbEntry.COLUMN_STARTING_VIEWS + " TEXT NOT NULL," +
                 TinyDbEntry.COLUMN_CURRENT_VIEWS + " TEXT NOT NULL," +
+                TinyDbEntry.COLUMN_RENTAL_COMPLETE + " INTEGER DEFAULT 0," +
                 TinyDbEntry.COLUMN_TICKETS_SOLD + " TEXT NOT NULL)";
 
         /** Used to delete the table */
